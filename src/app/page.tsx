@@ -7,8 +7,8 @@ export default function HomePage() {
     <main className="w-full">
       <h1>What do you want to learn?</h1>
       <div className="w-full m-auto flex flex-col">
-        <Link href="/chords">Chord Progression</Link><br/>
-        <Link href="/melody">Melody</Link>
+        <Link className="m-auto w-4/5 bg-blue-300 p-3 text-white m-3"href="/chords">Chord Progression →</Link><br/>
+        <Link className="m-auto w-4/5 bg-blue-300 p-3 text-white m-3" href="/melody">Melody →</Link>
       </div>
     </main>
   );
