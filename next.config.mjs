@@ -5,6 +5,10 @@
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    output:'export',
+    trailingSlash: true,
+    // basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
+};
 
 export default config;

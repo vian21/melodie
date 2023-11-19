@@ -6,18 +6,19 @@ import {
     generateRandomKey,
     generateRandomMelody,
     getMelodyNotesNames,
-    getNoteName,
 } from "~/util/library";
 
 import Notes from "~/util/notes";
+import { env } from "~/env.mjs";
+import { profile } from "console";
 
-function makeSounds(notes: string[], rate: number = 1): Howl[] {
+function makeSounds(notes: string[], rate = 1): Howl[] {
     const sounds: Howl[] = [];
 
     notes.map((note, i) => {
         sounds.push(
             new Howl({
-                src: [note],
+                src: [env.NEXT_PUBLIC_BASE + note],
                 rate: rate,
                 onend: () => {
                     console.log(rate, note);
@@ -34,15 +35,15 @@ function makeSounds(notes: string[], rate: number = 1): Howl[] {
 export default function MelodyHome() {
     const [numberOfNotes, setNumberOfNotes] = useState(4);
     const [octave, setOctave] = useState(4);
-    const [key, setKey] = useState(generateRandomKey());
-    const [speed, setSpeed] = useState(2);
+    const [key] = useState(generateRandomKey());
+    const [speed] = useState(2);
     //generate melody
     let melody = generateRandomMelody(key, numberOfNotes);
 
     //change melody to notes urls
     let melodyNotesName = getMelodyNotesNames(melody, octave);
     let notesURL: string[] = melodyNotesName.map((note) => {
-        return Notes[note] || "";
+        return Notes[note] ?? "";
     });
 
     const [sounds, setSounds] = useState(makeSounds(notesURL, speed));
@@ -58,7 +59,7 @@ export default function MelodyHome() {
         //change melody to notes urls
         melodyNotesName = getMelodyNotesNames(melody, octave);
         notesURL = melodyNotesName.map((note) => {
-            return Notes[note] || "";
+            return Notes[note] ?? "";
         });
 
         setSounds(makeSounds(notesURL, speed));

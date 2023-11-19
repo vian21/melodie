@@ -35,9 +35,12 @@ export function generateRandomMelody(key: number, length: number): number[] {
     const scale = getMajorScale(key);
     const melody = [];
     //tonic
-    melody.push(scale[0]);
+    scale[0] ? melody.push(scale[0]) : null;
+
     for (let i = 0; i < length; i++) {
-        melody.push(scale[Math.floor(Math.random() * scale.length)]);
+        const note = scale[Math.floor(Math.random() * scale.length)];
+        if (note == undefined) continue;
+        melody.push(note);
     }
 
     return melody;
@@ -83,7 +86,7 @@ export function getMelodyNotesNames(
     octave: number,
 ): string[] {
     return melody.map((note) => {
-        let _note = getNoteName(note);
+        const _note = getNoteName(note);
         return _note ? _note + octave : "";
     });
 }

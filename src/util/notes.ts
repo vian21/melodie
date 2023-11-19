@@ -1,4 +1,4 @@
-const Notes:{[key: string]: string} = {
+const Notes: Record<string, string> = {
     C3: "/sounds/piano/C3.mp3",
     Db3: "/sounds/piano/Db3.mp3",
     D3: "/sounds/piano/D3.mp3",
