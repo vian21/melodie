@@ -68,6 +68,7 @@ export default function MelodyHome() {
         <div className="flex flex-col">
             <h1 className="m-auto text-3xl">Advanced Melody Trainer</h1>
             {/* Settings */}
+            <p>Base: {env.NEXT_PUBLIC_BASEPATH}</p>
             <p className="text-md">Octave</p>
             <div className="m-auto flex p-3">
                 <input
