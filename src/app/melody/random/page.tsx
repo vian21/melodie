@@ -10,7 +10,6 @@ import {
 
 import Notes from "~/util/notes";
 import { env } from "~/env.mjs";
-import { profile } from "console";
 
 function makeSounds(notes: string[], rate = 1): Howl[] {
     const sounds: Howl[] = [];
@@ -18,7 +17,7 @@ function makeSounds(notes: string[], rate = 1): Howl[] {
     notes.map((note, i) => {
         sounds.push(
             new Howl({
-                src: [env.NEXT_PUBLIC_BASE + note],
+                src: [env.NEXT_PUBLIC_BASEPATH + note],
                 rate: rate,
                 onend: () => {
                     console.log(rate, note);

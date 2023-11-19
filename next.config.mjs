@@ -8,7 +8,7 @@ await import("./src/env.mjs");
 const config = {
     output:'export',
     trailingSlash: true,
-    // basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
+    basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
 };
 
 export default config;
