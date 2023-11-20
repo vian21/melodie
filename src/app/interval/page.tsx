@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import PinInput from "~/components/PinInput";
 import {
     correctGuess,
+    generateRandomIntervals,
     generateRandomKey,
-    generateRandomProgression,
+    generateRandomMelody,
     getMelodyNotesNames,
     getNotes,
     makeNotesURL,
@@ -14,46 +15,48 @@ import {
 } from "~/util/library";
 import Notes from "~/util/notes";
 
-export default function ChordsHome() {
-    const NUMBER_OF_NOTES = 4;
+export default function MelodyRandom() {
+    const [numberOfNotes, setNumberOfNotes] = useState(1);
+    const [octave, setOctave] = useState(4);
     const [key, setKey] = useState(0);
-    const [speed, setSpeeed] = useState(1);
-    const [octave] = useState(2);
-
-    const [correction, setCorrection] = useState(new Array(NUMBER_OF_NOTES));
-    const [chordProgression, setChordProgression] = useState(
-        new Array(NUMBER_OF_NOTES),
+    const [speed, setSpeeed] = useState(2);
+    const [correction, setCorrection] = useState(new Array(numberOfNotes * 2));
+    const [melodyDegrees, setMelodyDegrees] = useState(
+        new Array(numberOfNotes * 2),
     );
 
-    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES));
+    const [pin, setPin] = useState(new Array(numberOfNotes * 2));
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
         newPin[index] = pinEntry;
         setPin(newPin);
     };
 
-    const [chords, setChords] = useState(new Array(NUMBER_OF_NOTES));
-
+    const [melody, setMelody] = useState(new Array(numberOfNotes));
     const [sounds, setSounds] = useState<Howl[] | undefined>([]);
 
     useEffect(() => {
         const key = generateRandomKey();
-        const chordProgression = generateRandomProgression(NUMBER_OF_NOTES);
+        const melodyDegrees = generateRandomIntervals(numberOfNotes);
 
-        const chords = getNotes(key, chordProgression);
-        const notesURL = makeNotesURL(chords, octave);
+        const melody = getNotes(key, melodyDegrees);
+        const notesURL = makeNotesURL(melody, octave);
 
         //set states
         setKey(key);
-        setChordProgression(chordProgression);
-        setChords(chords);
+        setMelody(melody);
+        setMelodyDegrees(melodyDegrees);
         setSounds(makeSounds(notesURL, speed));
     }, []);
 
     useEffect(() => {
-        if (chords == undefined) return;
+        newMelody();
+    }, [numberOfNotes]);
 
-        const melodyNotesName = getMelodyNotesNames(chords, octave);
+    useEffect(() => {
+        if (melody == undefined) return;
+
+        const melodyNotesName = getMelodyNotesNames(melody, octave);
         const notesURL = melodyNotesName.map((note) => {
             return Notes[note] ?? "";
         });
@@ -62,30 +65,30 @@ export default function ChordsHome() {
         setSounds(makeSounds(notesURL, speed));
     }, [octave, speed]);
 
-    const newProgression = () => {
-        console.log("new Progression");
+    const newMelody = () => {
+        console.log("new melody");
         //get new key
         // setKey(generateRandomKey());
 
-        const progression = generateRandomProgression(NUMBER_OF_NOTES);
-        const chords = getNotes(key, progression);
+        const melodyDegrees = generateRandomIntervals(numberOfNotes);
+        const melody = getNotes(key, melodyDegrees);
 
         //change melody to notes urls
-        const melodyNotesName = getMelodyNotesNames(chords, octave);
+        const melodyNotesName = getMelodyNotesNames(melody, octave);
         const notesURL = melodyNotesName.map((note) => {
             return Notes[note] ?? "";
         });
 
         //set states
-        setChords(chords);
-        setChordProgression(progression);
-        setPin(new Array(NUMBER_OF_NOTES));
+        setMelody(melody);
+        setMelodyDegrees(melodyDegrees);
+        setPin(new Array(numberOfNotes));
         setSounds(makeSounds(notesURL, speed));
     };
 
     return (
         <div className="flex flex-col">
-            <h1 className="m-auto text-3xl">Chord Progression</h1>
+            <h1 className="m-auto text-3xl">Interval Trainer</h1>
 
             {/* Settings */}
             <div className="m-auto flex p-3">
@@ -104,21 +107,37 @@ export default function ChordsHome() {
                 <span className="px-2 text-xl">{speed}</span>
             </div>
 
-            {/* <div className="m-auto flex p-3">
-                <p className="px-2 text-xl">Notes: </p>
+            <div className="m-auto flex p-3">
+                <p className="px-2 text-xl">Octave:</p>
+
+                <input
+                    className=""
+                    type="range"
+                    min="1"
+                    max="5"
+                    value={octave}
+                    onChange={(e) => {
+                        setOctave(Number(e.target.value));
+                    }}
+                />
+                <span className="px-2 text-xl">C{octave}</span>
+            </div>
+
+            <div className="m-auto flex p-3">
+                <p className="px-2 text-xl">Intervals: </p>
 
                 <input
                     className="w-4/5"
                     type="range"
-                    min="2"
-                    max="10"
+                    min="1"
+                    max="7"
                     value={numberOfNotes}
                     onChange={(e) => {
                         setNumberOfNotes(Number(e.target.value));
                     }}
                 />
                 <span className="px-2 text-xl">{numberOfNotes}</span>
-            </div> */}
+            </div>
 
             <br />
 
@@ -126,11 +145,10 @@ export default function ChordsHome() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                    console.log(sounds);
                     playSounds(
                         sounds?.length
                             ? sounds
-                            : makeSounds(makeNotesURL(chords, octave), speed),
+                            : makeSounds(makeNotesURL(melody, octave), speed),
                     );
                 }}
             >
@@ -140,9 +158,9 @@ export default function ChordsHome() {
             {/* New Melody */}
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
-                onClick={newProgression}
+                onClick={newMelody}
             >
-                New Progression
+                New Interval
             </button>
 
             {/* Enter notes */}
@@ -151,14 +169,18 @@ export default function ChordsHome() {
                     <PinInput
                         pin={pin}
                         onPinChanged={onPinChanged}
-                        pinLength={NUMBER_OF_NOTES}
+                        pinLength={numberOfNotes * 2}
                         verification={correction}
                     />
                 </center>
                 <button
-                    onClick={() => {
-                        correctGuess(chordProgression, pin, setCorrection);
-                    }}
+                    onClick={() =>
+                        correctGuess(
+                            melodyDegrees.map((note) => note + 1),
+                            pin,
+                            setCorrection,
+                        )
+                    }
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
                 >
                     Verify

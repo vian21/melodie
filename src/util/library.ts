@@ -99,7 +99,25 @@ export function generateRandomMelody(length: number): number[] {
     return melody;
 }
 
-export function generateRandomProgression(length: number): number[] {
+/**
+ * generate random length-1 intervals starting with the root
+ */
+export function generateRandomIntervals(length: number): number[] {
+    const intervals = [];
+    for (let i = 0; i < length; i++) {
+        intervals.push(0);
+        intervals.push(Math.floor(Math.random() * 7));
+    }
+
+    return intervals;
+}
+/**
+ *
+ * @param length length of the progression. Default: 4
+ * @returns degreess of chords in the progression
+ */
+
+export function generateRandomProgression(length: number = 4): number[] {
     const prog = popularProgressions[
         Math.floor(Math.random() * popularProgressions.length)
     ]?.slice(0, length);
@@ -165,6 +183,7 @@ export function makeSounds(notes: string[], rate = 1): Howl[] {
             new Howl({
                 src: [env.NEXT_PUBLIC_BASEPATH + note],
                 rate: rate,
+                html5: true,
                 onend: () => {
                     console.log(note);
                     if (i === notes.length - 1) return;
