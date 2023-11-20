@@ -3,12 +3,18 @@
  * for Docker builds.
  */
 await import("./src/env.mjs");
+import nextPWA from "next-pwa";
 
-/** @type {import("next").NextConfig} */
-const config = {
-    output:'export',
+const withPWA = nextPWA({
+    dest: "public",
+    reloadOnOnline: true,
+    cacheOnFrontEndNav: true,
+});
+
+const config = withPWA({
+    output: "export",
     trailingSlash: true,
     basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
-};
+});
 
 export default config;
