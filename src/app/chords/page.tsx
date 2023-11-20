@@ -40,7 +40,10 @@ export default function ChordsHome() {
         const key = generateRandomKey();
         const chordProgression = generateRandomProgression(NUMBER_OF_NOTES);
 
-        const chords = getNotes(key, chordProgression);
+        const chords = getNotes(
+            key,
+            chordProgression.map((note) => note - 1),
+        );
         const notesURL = makeNotesURL(chords, octave);
 
         //set states
@@ -68,7 +71,10 @@ export default function ChordsHome() {
         // setKey(generateRandomKey());
 
         const progression = generateRandomProgression(NUMBER_OF_NOTES);
-        const chords = getNotes(key, progression);
+        const chords = getNotes(
+            key,
+            progression.map((note) => note - 1),
+        );
 
         //change melody to notes urls
         const melodyNotesName = getMelodyNotesNames(chords, octave);
@@ -81,6 +87,9 @@ export default function ChordsHome() {
         setChordProgression(progression);
         setPin(new Array(NUMBER_OF_NOTES));
         setSounds(makeSounds(notesURL, speed));
+
+        //clear correction
+        setCorrection(new Array(NUMBER_OF_NOTES));
     };
 
     return (

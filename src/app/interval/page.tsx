@@ -84,6 +84,9 @@ export default function MelodyRandom() {
         setMelodyDegrees(melodyDegrees);
         setPin(new Array(numberOfNotes));
         setSounds(makeSounds(notesURL, speed));
+
+        //clear correction
+        setCorrection(new Array(numberOfNotes));
     };
 
     return (

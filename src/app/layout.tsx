@@ -3,7 +3,7 @@
 import NavBar from "~/components/Navbar";
 import "./index.css";
 import { useEffect } from "react";
-import Head from "next/head";
+import { env } from "~/env.mjs";
 
 export default function RootLayout({
     children,
@@ -30,7 +30,7 @@ export default function RootLayout({
                     name="og:description"
                     content="Chord Progression and Melody training for musicians"
                 />
-                <meta name="application-name" content="PWA App" />
+                <meta name="application-name" content="Mélodie" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta
                     name="apple-mobile-web-app-status-bar-style"
@@ -43,11 +43,11 @@ export default function RootLayout({
 
                 <link
                     rel="apple-touch-icon"
-                    href="/icons/touch-icon-iphone.png"
+                    href="/icon.png"
                 />
 
-                <link rel="manifest" href="/manifest.json" />
-                <link rel="shortcut icon" href="/favicon.ico" />
+                <link rel="manifest" href={`${env.NEXT_PUBLIC_BASEPATH}/manifest.json`} />
+                <link rel="shortcut icon" href={`${env.NEXT_PUBLIC_BASEPATH}/icon.png`} />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Mélodie" />
                 <meta property="og:site_name" content="Mélodie" />
