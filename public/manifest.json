@@ -21,8 +21,8 @@
         }
     ],
     "description": "Mélodie is an ear trainer app that helps you to recognize intervals, chords and scales.",
-    "theme_color": "#FFFFFF",
-    "background_color": "#FFFFFF",
+    "theme_color": "#93C5FD",
+    "background_color": "#93C5FD",
     "start_url": "/melodie/",
     "display": "standalone",
     "orientation": "portrait"

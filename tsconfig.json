@@ -30,6 +30,6 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts"
-  ],
+, "src/util/Logger.js"  ],
   "exclude": ["node_modules"]
 }

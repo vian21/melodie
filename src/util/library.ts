@@ -1,6 +1,7 @@
 import { Howl } from "howler";
 import { env } from "~/env.mjs";
 import Notes from "./notes";
+import Logger from "./Logger";
 
 export const notes = [
     "C",
@@ -127,6 +128,8 @@ export function generateRandomProgression(length: number = 4): number[] {
     const prog = popularProgressions[
         Math.floor(Math.random() * popularProgressions.length)
     ]?.slice(0, length);
+
+    prog?.unshift(1);
     return prog ? prog : [];
 }
 
@@ -185,20 +188,24 @@ export function makeSounds(notes: string[], rate = 1): Howl[] {
     const sounds: Howl[] = [];
 
     notes.map((note, i) => {
-        sounds.push(
-            new Howl({
-                src: [env.NEXT_PUBLIC_BASEPATH + note],
-                rate: rate,
-                html5: true,
-                onend: () => {
-                    console.log(note);
-                    if (i === notes.length - 1) return;
-                    sounds[i + 1]?.play();
-                },
-            }),
-        );
+        const sound = new Howl({
+            autoplay: false,
+            src: [env.NEXT_PUBLIC_BASEPATH + note],
+            rate: rate,
+            html5: true,
+            onend: () => {
+                sound.unload();
+                Logger.log("Playing: ", note);
+                if (i === notes.length - 1) return;
+                sounds[i + 1]?.play();
+            },
+        });
+
+        sounds.push(sound);
     });
-    console.log("makeSounds: ", notes);
+
+    Logger.log("fn: makeSounds()", notes);
+
     return sounds;
 }
 
@@ -210,7 +217,7 @@ export function correctGuess(
     pin: number[],
     setCorrection: (arg0: number[]) => void,
 ) {
-    console.log(melodyDegrees, pin);
+    Logger.log(melodyDegrees, pin);
     const newCorrection = [];
     for (let i = 0; i < melodyDegrees.length; i++) {
         if (pin[i] === (melodyDegrees[i] ?? 0)) {
@@ -225,8 +232,8 @@ export function correctGuess(
 /**
  * @param sounds array of Howl objects
  */
-export function playSounds(sounds: { play: () => void }[]) {
-    console.log("playSounds: ", sounds);
+export function playSounds(sounds: Howl[]) {
+    Logger.log("fn: playSounds() Going to play: ", sounds);
 
     Howler.stop();
     sounds[0]?.play();
@@ -238,7 +245,7 @@ export function playSounds(sounds: { play: () => void }[]) {
 export function makeNotesURL(melody: number[], octave: number) {
     const melodyNotesName = getMelodyNotesNames(melody, octave);
 
-    console.log("makeNotesURL: ", melodyNotesName);
+    Logger.log("fn: makeNotesURL()", melodyNotesName);
     return melodyNotesName.map((note) => {
         return Notes[note] ?? "";
     });

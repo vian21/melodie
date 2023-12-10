@@ -25,7 +25,7 @@ export default function ChordsHome() {
         new Array(NUMBER_OF_NOTES),
     );
 
-    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES));
+    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES + 1));
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
         newPin[index] = pinEntry;
@@ -38,6 +38,7 @@ export default function ChordsHome() {
 
     useEffect(() => {
         const key = generateRandomKey();
+
         const chordProgression = generateRandomProgression(NUMBER_OF_NOTES);
 
         const chords = getNotes(
@@ -71,6 +72,7 @@ export default function ChordsHome() {
         // setKey(generateRandomKey());
 
         const progression = generateRandomProgression(NUMBER_OF_NOTES);
+
         const chords = getNotes(
             key,
             progression.map((note) => note - 1),
@@ -133,7 +135,7 @@ export default function ChordsHome() {
 
             {/* Play */}
             <button
-                className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
+                className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
                 onClick={() => {
                     console.log(sounds);
                     playSounds(
@@ -148,8 +150,10 @@ export default function ChordsHome() {
 
             {/* New Melody */}
             <button
-                className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
-                onClick={newProgression}
+                className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
+                onClick={() => {
+                    newProgression();
+                }}
             >
                 New Progression
             </button>
@@ -160,7 +164,7 @@ export default function ChordsHome() {
                     <PinInput
                         pin={pin}
                         onPinChanged={onPinChanged}
-                        pinLength={NUMBER_OF_NOTES}
+                        pinLength={chordProgression?.length}
                         verification={correction}
                     />
                 </center>
@@ -168,7 +172,7 @@ export default function ChordsHome() {
                     onClick={() => {
                         correctGuess(chordProgression, pin, setCorrection);
                     }}
-                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
+                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-xl text-white"
                 >
                     Verify
                 </button>

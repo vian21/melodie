@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import PinInput from "~/components/PinInput";
+import Logger from "~/util/Logger";
+
 import {
     correctGuess,
     generateRandomKey,
@@ -65,7 +67,7 @@ export default function MelodyRandom() {
     }, [octave, speed]);
 
     const newMelody = () => {
-        console.log("new melody");
+        Logger.log("new melody");
         //get new key
         // setKey(generateRandomKey());
 
@@ -103,6 +105,7 @@ export default function MelodyRandom() {
                     max="4"
                     value={speed}
                     onChange={(e) => {
+                        Logger.log("Speed changed");
                         setSpeeed(Number(e.target.value));
                     }}
                 />
@@ -147,11 +150,14 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                    playSounds(
-                        sounds?.length
-                            ? sounds
-                            : makeSounds(makeNotesURL(melody, octave), speed),
-                    );
+                    if (sounds == undefined || sounds?.length == 0) {
+                        playSounds(
+                            makeSounds(makeNotesURL(melody, octave), speed),
+                        );
+                        return;
+                    }
+
+                    playSounds(sounds);
                 }}
             >
                 Play

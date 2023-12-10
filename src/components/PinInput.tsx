@@ -1,6 +1,6 @@
 "use client";
 
-import {useRef } from "react";
+import { useRef } from "react";
 
 interface PinInputGridProps {
     pin: Array<number | undefined>;
@@ -82,7 +82,7 @@ const PinInput: React.FC<PinInputGridProps> = ({
                 {Array.from({ length: pinLength }, (_, index) => (
                     <input
                         type="number"
-                        className={`m-3 w-12 border-2 ${verificationColor(
+                        className={`text-md m-3 w-12 border-2 ${verificationColor(
                             verification?.[index],
                         )} p-3 text-center text-2xl text-black [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
                         onKeyDown={(event) => onKeyDown(event, index)}
