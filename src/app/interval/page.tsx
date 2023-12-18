@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import {
     correctGuess,
     generateRandomIntervals,
     generateRandomKey,
-    generateRandomMelody,
     getMelodyNotesNames,
     getNotes,
     makeNotesURL,
@@ -18,7 +17,7 @@ import Notes from "~/util/notes";
 export default function MelodyRandom() {
     const [numberOfNotes, setNumberOfNotes] = useState(1);
     const [octave, setOctave] = useState(4);
-    const [key, setKey] = useState(0);
+    const key = useRef(0);
     const [speed, setSpeeed] = useState(2);
     const [correction, setCorrection] = useState(new Array(numberOfNotes * 2));
     const [melodyDegrees, setMelodyDegrees] = useState(
@@ -36,14 +35,15 @@ export default function MelodyRandom() {
     const [sounds, setSounds] = useState<Howl[] | undefined>([]);
 
     useEffect(() => {
-        const key = generateRandomKey();
+        const k_rand = generateRandomKey();
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
 
-        const melody = getNotes(key, melodyDegrees);
+        const melody = getNotes(k_rand, melodyDegrees);
         const notesURL = makeNotesURL(melody, octave);
 
         //set states
-        setKey(key);
+        key.current = k_rand;
+
         setMelody(melody);
         setMelodyDegrees(melodyDegrees);
         setSounds(makeSounds(notesURL, speed));
@@ -71,7 +71,7 @@ export default function MelodyRandom() {
         // setKey(generateRandomKey());
 
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
-        const melody = getNotes(key, melodyDegrees);
+        const melody = getNotes(key.current, melodyDegrees);
 
         //change melody to notes urls
         const melodyNotesName = getMelodyNotesNames(melody, octave);

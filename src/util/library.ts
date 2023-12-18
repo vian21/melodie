@@ -90,15 +90,13 @@ export function getNotes(key: number, melody: number[]): number[] {
 }
 
 /**
- * ### NOTE: Will append the tonal note at the beginning of the melody
  * @returns array of degrees of notes(0-6)
  */
 export function generateRandomMelody(length: number): number[] {
-    const melody = [0]; //tonal note
+    const melody = [];
 
     for (let i = 0; i < length; i++) {
         const note = Math.floor(Math.random() * 7);
-        if (note == undefined) continue;
 
         melody.push(note);
     }
@@ -111,8 +109,9 @@ export function generateRandomMelody(length: number): number[] {
  */
 export function generateRandomIntervals(length: number): number[] {
     const intervals = [];
+
     for (let i = 0; i < length; i++) {
-        intervals.push(0);
+        intervals.push(0); //insert tonic
         intervals.push(Math.floor(Math.random() * 7));
     }
 
@@ -129,7 +128,6 @@ export function generateRandomProgression(length: number = 4): number[] {
         Math.floor(Math.random() * popularProgressions.length)
     ]?.slice(0, length);
 
-    prog?.unshift(1);
     return prog ? prog : [];
 }
 
@@ -233,14 +231,13 @@ export function correctGuess(
  * @param sounds array of Howl objects
  */
 export function playSounds(sounds: Howl[]) {
-    Logger.log("fn: playSounds() Going to play: ", sounds);
-
     Howler.stop();
     sounds[0]?.play();
 }
 
 /**
- *
+ * Generate List of .mp3 strings for notes in the melody.
+ * The melody notes must be representative of the actual note [0-11] not their scale degree
  */
 export function makeNotesURL(melody: number[], octave: number) {
     const melodyNotesName = getMelodyNotesNames(melody, octave);

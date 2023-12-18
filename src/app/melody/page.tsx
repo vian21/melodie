@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import Logger from "~/util/Logger";
 
@@ -8,18 +8,16 @@ import {
     correctGuess,
     generateRandomKey,
     generateRandomMelody,
-    getMelodyNotesNames,
     getNotes,
     makeNotesURL,
     makeSounds,
     playSounds,
 } from "~/util/library";
-import Notes from "~/util/notes";
 
 export default function MelodyRandom() {
     const [numberOfNotes, setNumberOfNotes] = useState(4);
     const [octave, setOctave] = useState(4);
-    const [key, setKey] = useState(0);
+    const key = useRef(0);
     const [speed, setSpeeed] = useState(2);
     const [correction, setCorrection] = useState(new Array(numberOfNotes));
     const [melodyDegrees, setMelodyDegrees] = useState(
@@ -37,56 +35,44 @@ export default function MelodyRandom() {
     const [sounds, setSounds] = useState<Howl[] | undefined>([]);
 
     useEffect(() => {
-        const key = generateRandomKey();
-        const melodyDegrees = generateRandomMelody(numberOfNotes);
+        const k_rand = generateRandomKey();
+        Logger.warn("Random Key gen", k_rand);
+        //generate new melody
+        newMelody(k_rand);
 
-        const melody = getNotes(key, melodyDegrees);
-        const notesURL = makeNotesURL(melody, octave);
-
-        //set states
-        setKey(key);
-        setMelody(melody);
-        setMelodyDegrees(melodyDegrees);
-        setSounds(makeSounds(notesURL, speed));
+        key.current = k_rand;
     }, []);
 
     useEffect(() => {
-        newMelody();
+        Logger.warn("Number of notes changed");
+        newMelody(key.current); //TODO: causing error on initial render. The key and the melody being played are out of sync.
     }, [numberOfNotes]);
 
     useEffect(() => {
         if (melody == undefined) return;
 
-        const melodyNotesName = getMelodyNotesNames(melody, octave);
-        const notesURL = melodyNotesName.map((note) => {
-            return Notes[note] ?? "";
-        });
+        const notesURL = makeNotesURL(melody, octave);
 
         //set states
         setSounds(makeSounds(notesURL, speed));
     }, [octave, speed]);
 
-    const newMelody = () => {
-        Logger.log("new melody");
-        //get new key
-        // setKey(generateRandomKey());
+    const newMelody = (key: number) => {
+        Logger.log("new melody, Key=", key);
 
         const melodyDegrees = generateRandomMelody(numberOfNotes);
         const melody = getNotes(key, melodyDegrees);
 
         //change melody to notes urls
-        const melodyNotesName = getMelodyNotesNames(melody, octave);
-        const notesURL = melodyNotesName.map((note) => {
-            return Notes[note] ?? "";
-        });
+        const notesURL = makeNotesURL(melody, octave);
 
         //set states
         setMelody(melody);
         setMelodyDegrees(melodyDegrees);
-        setPin(new Array(numberOfNotes));
         setSounds(makeSounds(notesURL, speed));
 
         //clear correction
+        setPin(new Array(numberOfNotes));
         setCorrection(new Array(numberOfNotes));
     };
 
@@ -163,10 +149,22 @@ export default function MelodyRandom() {
                 Play
             </button>
 
+            {/* Play tonic */}
+            <button
+                className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
+                onClick={() => {
+                    playSounds(makeSounds(makeNotesURL([key.current], octave)));
+                }}
+            >
+                Play Tonic (1)
+            </button>
+
             {/* New Melody */}
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
-                onClick={newMelody}
+                onClick={() => {
+                    newMelody(key.current);
+                }}
             >
                 New Melody
             </button>
@@ -181,10 +179,11 @@ export default function MelodyRandom() {
                         verification={correction}
                     />
                 </center>
+
                 <button
                     onClick={() =>
                         correctGuess(
-                            melodyDegrees.slice(1).map((note) => note + 1),
+                            melodyDegrees.map((note) => note + 1),
                             pin,
                             setCorrection,
                         )

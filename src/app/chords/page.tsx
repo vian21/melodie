@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import {
     correctGuess,
@@ -16,7 +16,7 @@ import Notes from "~/util/notes";
 
 export default function ChordsHome() {
     const NUMBER_OF_NOTES = 4;
-    const [key, setKey] = useState(0);
+    const key = useRef(0);
     const [speed, setSpeeed] = useState(1);
     const [octave] = useState(2);
 
@@ -37,18 +37,19 @@ export default function ChordsHome() {
     const [sounds, setSounds] = useState<Howl[] | undefined>([]);
 
     useEffect(() => {
-        const key = generateRandomKey();
+        const k_rand = generateRandomKey();
 
         const chordProgression = generateRandomProgression(NUMBER_OF_NOTES);
 
         const chords = getNotes(
-            key,
+            k_rand,
             chordProgression.map((note) => note - 1),
         );
         const notesURL = makeNotesURL(chords, octave);
 
         //set states
-        setKey(key);
+        key.current = k_rand;
+
         setChordProgression(chordProgression);
         setChords(chords);
         setSounds(makeSounds(notesURL, speed));
@@ -74,7 +75,7 @@ export default function ChordsHome() {
         const progression = generateRandomProgression(NUMBER_OF_NOTES);
 
         const chords = getNotes(
-            key,
+            key.current,
             progression.map((note) => note - 1),
         );
 
@@ -148,7 +149,17 @@ export default function ChordsHome() {
                 Play
             </button>
 
-            {/* New Melody */}
+            {/* Play tonic */}
+            <button
+                className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
+                onClick={() => {
+                    playSounds(makeSounds(makeNotesURL([key.current], octave)));
+                }}
+            >
+                Play Tonic (1)
+            </button>
+
+            {/* New Chord Progression */}
             <button
                 className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
                 onClick={() => {
