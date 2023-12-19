@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Transport } from "tone";
 import PinInput from "~/components/PinInput";
+import usePiano from "~/util/Piano";
 import {
     correctGuess,
     generateRandomKey,
     generateRandomProgression,
-    playChordProgression
+    playChordProgression,
 } from "~/util/library";
 
 export default function ChordsHome() {
@@ -27,6 +29,7 @@ export default function ChordsHome() {
         setPin(newPin);
     };
 
+    const piano = usePiano();
 
     useEffect(() => {
         const k_rand = generateRandomKey();
@@ -39,8 +42,7 @@ export default function ChordsHome() {
         setChordProgression(chordProgression);
     }, []);
 
-    useEffect(() => {
-    }, [octave, speed]);
+    useEffect(() => {}, [octave, speed]);
 
     const newProgression = () => {
         console.log("new Progression");
@@ -78,7 +80,6 @@ export default function ChordsHome() {
                 <span className="px-2 text-xl">{speed}</span>
             </div>
 
-
             <div className="m-auto flex p-3">
                 <p className="px-2 text-xl">Octave:</p>
 
@@ -100,7 +101,16 @@ export default function ChordsHome() {
             <button
                 className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
                 onClick={() => {
-          playChordProgression(chordProgression, key.current, octave, speed/4);
+                    if (piano == null) return;
+
+                    //TODO: stop previously sequence before starting new one
+                    playChordProgression(
+                        piano,
+                        chordProgression,
+                        key.current,
+                        octave,
+                        speed / 4,
+                    );
                 }}
             >
                 Play
@@ -110,7 +120,9 @@ export default function ChordsHome() {
             <button
                 className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white"
                 onClick={() => {
-                    playChordProgression([1],key.current, octave, 2);
+                    if (piano == null) return;
+
+                    playChordProgression(piano, [1], key.current, octave, 2);
                 }}
             >
                 Play Tonic (1)

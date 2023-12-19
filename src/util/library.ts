@@ -1,11 +1,7 @@
-import { Howl } from "howler";
-import { env } from "~/env.mjs";
-import Notes from "./notes";
 import Logger from "./Logger";
 
-import { now, Time } from "tone";
+import { Sampler, now } from "tone";
 
-import Piano from "~/util/Piano";
 export const notes = [
     "C",
     "Db",
@@ -212,37 +208,6 @@ export function getMelodyNotesNames(
 }
 
 /**
- *
- * @param notes array of URLs of notes to play
- * @param rate speed of the melody. Default is 1
- * @returns
- */
-export function makeSounds(notes: string[], rate = 1): Howl[] {
-    const sounds: Howl[] = [];
-
-    notes.map((note, i) => {
-        const sound = new Howl({
-            autoplay: false,
-            src: [env.NEXT_PUBLIC_BASEPATH + note],
-            rate: rate,
-            html5: true,
-            onend: () => {
-                sound.unload();
-                Logger.log("Playing: ", note);
-                if (i === notes.length - 1) return;
-                sounds[i + 1]?.play();
-            },
-        });
-
-        sounds.push(sound);
-    });
-
-    Logger.log("fn: makeSounds()", notes);
-
-    return sounds;
-}
-
-/**
  * correct guess of degress of melody being played
  */
 export function correctGuess(
@@ -260,27 +225,6 @@ export function correctGuess(
         }
     }
     setCorrection(newCorrection);
-}
-
-/**
- * @param sounds array of Howl objects
- */
-export function playSounds(sounds: Howl[]) {
-    Howler.stop();
-    sounds[0]?.play();
-}
-
-/**
- * Generate List of .mp3 strings for notes in the melody.
- * The melody notes must be representative of the actual note [0-11] not their scale degree
- */
-export function makeNotesURL(melody: number[], octave: number) {
-    const melodyNotesName = getMelodyNotesNames(melody, octave);
-
-    Logger.log("fn: makeNotesURL()", melodyNotesName);
-    return melodyNotesName.map((note) => {
-        return Notes[note] ?? "";
-    });
 }
 
 export enum ChordQuality {
@@ -303,17 +247,16 @@ export function makeChord(root: number, octave: number, type: ChordQuality) {
 
     //diminish 5th if VII degreee
     if (type == ChordQuality.DIMINISHED) {
-        chord_formula[1] = scale[4] - 1;
+        chord_formula[1] = scale[4]! - 1;
     }
 
-    const chord_names = chord_formula.map((note) => getNoteName(note));
-    Logger.log("chord_names", chord_names);
+    const chord_names = chord_formula.map((note) => getNoteName(note!));
 
     return [
-        chord_names[0] + octave,
-        chord_names[1] + (root < 5) ? octave : octave + 1, //from F, their 5th is in the next octave
-        chord_names[2] + (octave + 1),
-        chord_names[3] + (octave + 1),
+        chord_names[0]! + octave,
+        `${chord_names[1]!}${root < 5 ? octave : octave + 1}`, //from F, their 5th is in the next octave
+        chord_names[2]! + (octave + 1),
+        chord_names[3]! + (octave + 1),
     ];
 }
 
@@ -323,6 +266,7 @@ export function makeChord(root: number, octave: number, type: ChordQuality) {
  *
  */
 export function playChordProgression(
+    Piano: Sampler,
     progression: number[],
     key: number,
     octave: number,
@@ -343,11 +287,10 @@ export function playChordProgression(
             quality = ChordQuality.DIMINISHED;
         }
 
-        Piano.triggerAttackRelease(
-            makeChord(scale[note - 1], octave, quality),
-            interval,
-            time + interval * i,
-        );
+        const chord = makeChord(scale[note - 1]!, octave, quality);
+        Logger.log("Playing:", chord);
+
+        Piano.triggerAttackRelease(chord, interval, time + interval * i);
     });
 }
 
@@ -357,6 +300,7 @@ export function playChordProgression(
  *
  */
 export function playMelody(
+    Piano: Sampler,
     melody: number[],
     key: number,
     octave: number,
@@ -367,9 +311,10 @@ export function playMelody(
     const time = now();
 
     melody.map((note, i) => {
-        Logger.warn(`${getNoteName(scale[note - 1])}${octave}`);
+        Logger.log(`${getNoteName(scale[note - 1]!)}${octave}`);
+
         Piano.triggerAttackRelease(
-            `${getNoteName(scale[note - 1])}${octave}`,
+            `${getNoteName(scale[note - 1]!)}${octave}`,
             interval,
             time + interval * i,
         );

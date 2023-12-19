@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import Logger from "~/util/Logger";
+import usePiano from "~/util/Piano";
 
 import {
     correctGuess,
@@ -28,21 +29,23 @@ export default function MelodyRandom() {
         setPin(newPin);
     };
 
+    const piano = usePiano();
+
     useEffect(() => {
         const k_rand = generateRandomKey();
-        Logger.warn("Random Key gen", k_rand);
+        Logger.log("Random Key gen", k_rand);
         //generate new melody
-        newMelody(k_rand);
+        newMelody();
 
         key.current = k_rand;
     }, []);
 
     useEffect(() => {
-        Logger.warn("Number of notes changed");
-        newMelody(key.current); 
+        Logger.log("Number of notes changed");
+        newMelody();
     }, [numberOfNotes]);
 
-    const newMelody = (key) => {
+    const newMelody = () => {
         //set states
         setMelodyDegrees(generateRandomMelody(numberOfNotes));
 
@@ -111,7 +114,15 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                  playMelody(melodyDegrees,key.current, octave, speed/4)
+                    if (piano === null) return;
+
+                    playMelody(
+                        piano,
+                        melodyDegrees,
+                        key.current,
+                        octave,
+                        speed / 4,
+                    );
                 }}
             >
                 Play
@@ -121,7 +132,9 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                  playMelody([1],key.current, octave, speed/4)
+                    if (piano === null) return;
+
+                    playMelody(piano, [1], key.current, octave, speed / 4);
                 }}
             >
                 Play Tonic (1)
@@ -131,7 +144,7 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                    newMelody(key.current);
+                    newMelody();
                 }}
             >
                 New Melody
@@ -150,11 +163,7 @@ export default function MelodyRandom() {
 
                 <button
                     onClick={() =>
-                        correctGuess(
-                            melodyDegrees,
-                            pin,
-                            setCorrection,
-                        )
+                        correctGuess(melodyDegrees, pin, setCorrection)
                     }
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
                 >

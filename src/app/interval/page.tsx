@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
+import usePiano from "~/util/Piano";
 import {
     correctGuess,
     generateRandomIntervals,
@@ -25,6 +26,8 @@ export default function MelodyRandom() {
         newPin[index] = pinEntry;
         setPin(newPin);
     };
+
+    const piano = usePiano();
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
 
@@ -117,7 +120,15 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                    playMelody(melodyDegrees, key.current, octave, speed/4);
+                    if (piano == null) return;
+
+                    playMelody(
+                        piano,
+                        melodyDegrees,
+                        key.current,
+                        octave,
+                        speed / 4,
+                    );
                 }}
             >
                 Play
@@ -143,11 +154,7 @@ export default function MelodyRandom() {
                 </center>
                 <button
                     onClick={() =>
-                        correctGuess(
-                            melodyDegrees,
-                            pin,
-                            setCorrection,
-                        )
+                        correctGuess(melodyDegrees, pin, setCorrection)
                     }
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
                 >
