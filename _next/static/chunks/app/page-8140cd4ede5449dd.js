@@ -1,0 +1,9 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[931],{3169:function(e,t,r){Promise.resolve().then(r.bind(r,5721))},5721:function(e,t,r){"use strict";r.r(t),r.d(t,{default:function(){return HomePage}});var n=r(7437),o=r(1396),l=r.n(o);function HomePage(){return(0,n.jsxs)("main",{className:"w-full",children:[(0,n.jsx)("h1",{className:"text-xl p-3",children:"What do you want to learn?"}),(0,n.jsxs)("div",{className:"m-auto flex w-full flex-col",children:[(0,n.jsx)(l(),{className:"text-xl m-auto my-3 w-4/5 bg-blue-300 p-3 text-white",href:"/chords",children:"Chord Progression →"}),(0,n.jsx)(l(),{className:"text-xl m-auto my-3 w-4/5 bg-blue-300 p-3 text-white",href:"/melody",children:"Melody →"}),(0,n.jsx)(l(),{className:"text-xl m-auto my-3 w-4/5 bg-blue-300 p-3 text-white",href:"/interval",children:"Interval Training →"})]})]})}},622:function(e,t,r){"use strict";/**
+ * @license React
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var n=r(2265),o=Symbol.for("react.element"),l=Symbol.for("react.fragment"),s=Object.prototype.hasOwnProperty,a=n.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,u={key:!0,ref:!0,__self:!0,__source:!0};function q(e,t,r){var n,l={},i=null,c=null;for(n in void 0!==r&&(i=""+r),void 0!==t.key&&(i=""+t.key),void 0!==t.ref&&(c=t.ref),t)s.call(t,n)&&!u.hasOwnProperty(n)&&(l[n]=t[n]);if(e&&e.defaultProps)for(n in t=e.defaultProps)void 0===l[n]&&(l[n]=t[n]);return{$$typeof:o,type:e,key:i,ref:c,props:l,_owner:a.current}}t.Fragment=l,t.jsx=q,t.jsxs=q},7437:function(e,t,r){"use strict";e.exports=r(622)}},function(e){e.O(0,[396,971,472,744],function(){return e(e.s=3169)}),_N_E=e.O()}]);
