@@ -3,6 +3,9 @@ import { env } from "~/env.mjs";
 import Notes from "./notes";
 import Logger from "./Logger";
 
+import { now, Time } from "tone";
+
+import Piano from "~/util/Piano";
 export const notes = [
     "C",
     "Db",
@@ -90,13 +93,15 @@ export function getNotes(key: number, melody: number[]): number[] {
 }
 
 /**
- * @returns array of degrees of notes(0-6)
+ * @returns array of degrees of notes 1-7
  */
 export function generateRandomMelody(length: number): number[] {
     const melody = [];
 
     for (let i = 0; i < length; i++) {
-        const note = Math.floor(Math.random() * 7);
+        const min = 1;
+        const max = 7;
+        const note = Math.floor(Math.random() * (max - min + 1) + min); //min and max inclusive
 
         melody.push(note);
     }
@@ -110,9 +115,13 @@ export function generateRandomMelody(length: number): number[] {
 export function generateRandomIntervals(length: number): number[] {
     const intervals = [];
 
+    const min = 1;
+    const max = 7;
+
     for (let i = 0; i < length; i++) {
-        intervals.push(0); //insert tonic
-        intervals.push(Math.floor(Math.random() * 7));
+        intervals.push(1); //insert tonic
+
+        intervals.push(Math.floor(Math.random() * (max - min + 1) + min)); //min and max inclusive
     }
 
     return intervals;
@@ -135,7 +144,7 @@ export function generateRandomProgression(length: number = 4): number[] {
  *
  * @param key index of a tonal key (0-11)
  *
- * w-w-h-w-w-w-h -> +0 +2 +2 +1 +2 +2 +2
+ * w-w-h-w-w-w-h(8) -> +0 +2 +2 +1 +2 +2 +2 -> 0, 2, 4, 5, 7, 9, 11, 12
  * @returns array of indexes of notes in scale
  */
 export function getMajorScale(key: number) {
@@ -147,6 +156,32 @@ export function getMajorScale(key: number) {
         scale.push((key + i) % 12);
 
         if (i == 4) {
+            i++;
+            continue;
+        }
+
+        i += 2;
+    }
+
+    return scale;
+}
+
+/**
+ *
+ * @param key index of a tonal key (0-11)
+ *
+ * 0, W, H, W, W, H, W, W(8) -> +0 +2 +1 +2 +2 +1 +2 +2 -> 0, 2, 3, 5, 7, 8, 10, 12
+ * @returns array of indexes of notes in scale
+ */
+export function getMinorScale(key: number) {
+    const scale: number[] = [];
+    let i = 0;
+
+    //12: number of half-steps in an octave
+    while (i < 12) {
+        scale.push((key + i) % 12);
+
+        if (i == 2 || i == 7) {
             i++;
             continue;
         }
@@ -245,5 +280,98 @@ export function makeNotesURL(melody: number[], octave: number) {
     Logger.log("fn: makeNotesURL()", melodyNotesName);
     return melodyNotesName.map((note) => {
         return Notes[note] ?? "";
+    });
+}
+
+export enum ChordQuality {
+    MINOR,
+    MAJOR,
+    DIMINISHED,
+}
+
+/**
+ * @param root - 0-11 root note
+ * @param octave - 0-7
+ * @param type - ChordQuality
+ */
+export function makeChord(root: number, octave: number, type: ChordQuality) {
+    const scale =
+        type == ChordQuality.MAJOR ? getMajorScale(root) : getMinorScale(root);
+
+    //1-5-1-3
+    const chord_formula = [root, scale[4], root, scale[2]];
+
+    //diminish 5th if VII degreee
+    if (type == ChordQuality.DIMINISHED) {
+        chord_formula[1] = scale[4] - 1;
+    }
+
+    const chord_names = chord_formula.map((note) => getNoteName(note));
+    Logger.log("chord_names", chord_names);
+
+    return [
+        chord_names[0] + octave,
+        chord_names[1] + (root < 5) ? octave : octave + 1, //from F, their 5th is in the next octave
+        chord_names[2] + (octave + 1),
+        chord_names[3] + (octave + 1),
+    ];
+}
+
+/**
+ * @param progression - chord progression using number system (1-7)
+ * @param interval - time between each note i.e speed
+ *
+ */
+export function playChordProgression(
+    progression: number[],
+    key: number,
+    octave: number,
+    interval: number,
+) {
+    const scale = getMajorScale(key);
+
+    const time = now();
+
+    progression.map((note, i) => {
+        let quality: ChordQuality = ChordQuality.MAJOR;
+
+        if (note == 2 || note == 3 || note == 6) {
+            quality = ChordQuality.MINOR;
+        }
+
+        if (note == 7) {
+            quality = ChordQuality.DIMINISHED;
+        }
+
+        Piano.triggerAttackRelease(
+            makeChord(scale[note - 1], octave, quality),
+            interval,
+            time + interval * i,
+        );
+    });
+}
+
+/**
+ * @param melody - melody using number system
+ * @param interval - time between each note i.e speed
+ *
+ */
+export function playMelody(
+    melody: number[],
+    key: number,
+    octave: number,
+    interval: number,
+) {
+    const scale = getMajorScale(key);
+
+    const time = now();
+
+    melody.map((note, i) => {
+        Logger.warn(`${getNoteName(scale[note - 1])}${octave}`);
+        Piano.triggerAttackRelease(
+            `${getNoteName(scale[note - 1])}${octave}`,
+            interval,
+            time + interval * i,
+        );
     });
 }

@@ -6,19 +6,14 @@ import {
     correctGuess,
     generateRandomIntervals,
     generateRandomKey,
-    getMelodyNotesNames,
-    getNotes,
-    makeNotesURL,
-    makeSounds,
-    playSounds,
+    playMelody,
 } from "~/util/library";
-import Notes from "~/util/notes";
 
 export default function MelodyRandom() {
     const [numberOfNotes, setNumberOfNotes] = useState(1);
     const [octave, setOctave] = useState(4);
     const key = useRef(0);
-    const [speed, setSpeeed] = useState(2);
+    const [speed, setSpeeed] = useState(4);
     const [correction, setCorrection] = useState(new Array(numberOfNotes * 2));
     const [melodyDegrees, setMelodyDegrees] = useState(
         new Array(numberOfNotes * 2),
@@ -32,38 +27,21 @@ export default function MelodyRandom() {
     };
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
-    const [sounds, setSounds] = useState<Howl[] | undefined>([]);
 
     useEffect(() => {
         const k_rand = generateRandomKey();
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
-
-        const melody = getNotes(k_rand, melodyDegrees);
-        const notesURL = makeNotesURL(melody, octave);
 
         //set states
         key.current = k_rand;
 
         setMelody(melody);
         setMelodyDegrees(melodyDegrees);
-        setSounds(makeSounds(notesURL, speed));
     }, []);
 
     useEffect(() => {
         newMelody();
     }, [numberOfNotes]);
-
-    useEffect(() => {
-        if (melody == undefined) return;
-
-        const melodyNotesName = getMelodyNotesNames(melody, octave);
-        const notesURL = melodyNotesName.map((note) => {
-            return Notes[note] ?? "";
-        });
-
-        //set states
-        setSounds(makeSounds(notesURL, speed));
-    }, [octave, speed]);
 
     const newMelody = () => {
         console.log("new melody");
@@ -71,19 +49,10 @@ export default function MelodyRandom() {
         // setKey(generateRandomKey());
 
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
-        const melody = getNotes(key.current, melodyDegrees);
-
-        //change melody to notes urls
-        const melodyNotesName = getMelodyNotesNames(melody, octave);
-        const notesURL = melodyNotesName.map((note) => {
-            return Notes[note] ?? "";
-        });
 
         //set states
-        setMelody(melody);
         setMelodyDegrees(melodyDegrees);
         setPin(new Array(numberOfNotes));
-        setSounds(makeSounds(notesURL, speed));
 
         //clear correction
         setCorrection(new Array(numberOfNotes));
@@ -148,11 +117,7 @@ export default function MelodyRandom() {
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
-                    playSounds(
-                        sounds?.length
-                            ? sounds
-                            : makeSounds(makeNotesURL(melody, octave), speed),
-                    );
+                    playMelody(melodyDegrees, key.current, octave, speed/4);
                 }}
             >
                 Play
@@ -179,7 +144,7 @@ export default function MelodyRandom() {
                 <button
                     onClick={() =>
                         correctGuess(
-                            melodyDegrees.map((note) => note + 1),
+                            melodyDegrees,
                             pin,
                             setCorrection,
                         )
