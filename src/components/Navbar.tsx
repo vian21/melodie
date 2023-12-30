@@ -19,7 +19,14 @@ function NavLinks(props: { hidden: boolean }) {
                     About
                 </Link>
             </li>
-        </>
+
+            <li>
+                <Link className="nav-link" href="/dashboard">
+                    Dashboard
+                </Link>
+            </li>
+
+    </>
     );
 }
 

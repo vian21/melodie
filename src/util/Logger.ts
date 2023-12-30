@@ -3,7 +3,7 @@
  *
  */
 // @ts-nocheck TODO: find a way to fix this
-class Logger {
+class _Logger {
     print(level, ...message: any[]) {
         if (process.env.DEBUG == "false") return;
 
@@ -41,6 +41,6 @@ const DebugLevel = {
     ERROR: "error",
 };
 
-const loggerInstance = Object.freeze(new Logger());
+const Logger = Object.freeze(new _Logger());
 
-export default loggerInstance;
+export default Logger;

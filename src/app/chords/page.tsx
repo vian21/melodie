@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Transport } from "tone";
 import PinInput from "~/components/PinInput";
 import usePiano from "~/util/Piano";
+import useStorage from "~/util/Storage";
 import {
+    Training,
     correctGuess,
     generateRandomKey,
     generateRandomProgression,
@@ -30,6 +31,7 @@ export default function ChordsHome() {
     };
 
     const piano = usePiano();
+    const storage = useStorage();
 
     useEffect(() => {
         const k_rand = generateRandomKey();
@@ -65,7 +67,7 @@ export default function ChordsHome() {
 
             {/* Settings */}
             <div className="m-auto flex p-3">
-                <p className="px-2 text-xl">Speed:</p>
+                <p className="px-2 text-xl">Length:</p>
 
                 <input
                     className="w-4/5"
@@ -86,8 +88,8 @@ export default function ChordsHome() {
                 <input
                     className=""
                     type="range"
-                    min="3"
-                    max="5"
+                    min="2"
+                    max="4"
                     value={octave}
                     onChange={(e) => {
                         setOctave(Number(e.target.value));
@@ -150,7 +152,15 @@ export default function ChordsHome() {
                 </center>
                 <button
                     onClick={() => {
-                        correctGuess(chordProgression, pin, setCorrection);
+                        if (storage == null) return;
+
+                        correctGuess(
+                            chordProgression,
+                            pin,
+                            setCorrection,
+                            storage,
+                            Training.CHORD_PROGRESSION,
+                        );
                     }}
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-xl text-white"
                 >

@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import usePiano from "~/util/Piano";
+import useStorage from "~/util/Storage";
 import {
+    Training,
     correctGuess,
     generateRandomIntervals,
     generateRandomKey,
@@ -28,6 +30,7 @@ export default function MelodyRandom() {
     };
 
     const piano = usePiano();
+    const storage = useStorage();
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
 
@@ -153,9 +156,17 @@ export default function MelodyRandom() {
                     />
                 </center>
                 <button
-                    onClick={() =>
-                        correctGuess(melodyDegrees, pin, setCorrection)
-                    }
+                    onClick={() => {
+                        if (storage == null) return;
+
+                        correctGuess(
+                            melodyDegrees,
+                            pin,
+                            setCorrection,
+                            storage,
+                            Training.INTERVAL,
+                        );
+                    }}
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
                 >
                     Verify

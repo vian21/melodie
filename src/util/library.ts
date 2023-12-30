@@ -1,6 +1,7 @@
 import Logger from "./Logger";
 
 import { Sampler, now } from "tone";
+import { _Storage } from "./Storage";
 
 export const notes = [
     "C",
@@ -16,6 +17,12 @@ export const notes = [
     "Bb",
     "B",
 ];
+
+export enum Training {
+    CHORD_PROGRESSION = "CHORD_PROGRESSION",
+    MELODY = "MELODY",
+    INTERVAL = "INTERVAL",
+}
 
 export const popularProgressions = [
     [1, 2, 3, 4],
@@ -208,23 +215,34 @@ export function getMelodyNotesNames(
 }
 
 /**
- * correct guess of degress of melody being played
+ * Correct guess of degrees of melody/chord progression being played and save them using the useState setter
  */
 export function correctGuess(
-    melodyDegrees: number[],
+    degrees: number[],
     pin: number[],
     setCorrection: (arg0: number[]) => void,
+    storage: _Storage,
+    training: Training,
 ) {
-    Logger.log(melodyDegrees, pin);
+    Logger.log(degrees, pin);
+
     const newCorrection = [];
-    for (let i = 0; i < melodyDegrees.length; i++) {
-        if (pin[i] === (melodyDegrees[i] ?? 0)) {
-            newCorrection[i] = 1;
-        } else {
-            newCorrection[i] = 0;
-        }
+    let allCorrect: 0 | 1 = 1;
+
+    for (let i = 0; i < degrees.length; i++) {
+        const isCorrect = pin[i] === degrees[i] ? 1 : 0;
+
+        if (isCorrect == 0) allCorrect = 0;
+
+        newCorrection[i] = isCorrect;
+
+        storage.increment(training, degrees[i]!, isCorrect);
     }
+
     setCorrection(newCorrection);
+
+    //overall tries increment
+    storage.increment(training, 0, allCorrect);
 }
 
 export enum ChordQuality {

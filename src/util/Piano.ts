@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sampler } from "tone";
 import { env } from "~/env.mjs";
+import Logger from "./Logger";
 
 export default function usePiano() {
     const [piano, setPiano] = useState<Sampler | null>(null);
@@ -45,6 +46,7 @@ export default function usePiano() {
             baseUrl: `${env.NEXT_PUBLIC_BASEPATH}/sounds/piano/`,
         }).toDestination();
 
+        Logger.log("Piano loaded");
         setPiano(piano);
 
         return () => {
