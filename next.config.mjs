@@ -9,6 +9,7 @@ const withPWA = nextPWA({
     dest: "public",
     reloadOnOnline: true,
     cacheOnFrontEndNav: true,
+    disable: process.env.NODE_ENV === "development" ? true : false,
 });
 
 const config = withPWA({
