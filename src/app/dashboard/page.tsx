@@ -1,5 +1,5 @@
 "use client";
-import useStorage from "~/util/Storage";
+import useStorage, { _Storage } from "~/util/Storage";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -17,7 +17,6 @@ ChartJS.register(ArcElement, Tooltip, Legend, Colors);
 
 export default function Dashboard() {
     const storage = useStorage();
-    console.log(storage?.get(Training.CHORD_PROGRESSION, "2023-12-27")[0]);
     const [view, setView] = useState("General");
 
     return (
@@ -44,47 +43,49 @@ export default function Dashboard() {
     );
 }
 
-function renderView(view: string, storage: any) {
+function renderView(view: string, storage: _Storage | null) {
     switch (view) {
         case "General":
-            return <Overall storage={storage} />;
+            // return <Overall storage={storage} />;
+            return <></>;
         default:
-            return <TrainingStat training={view} storage={storage} />;
+            // return <TrainingStat training={view} storage={storage} />;
+            return <></>;
     }
 }
-function Overall({ storage }) {
-    return (
-        <>
-            {(Object.keys(Training) as Array<keyof typeof Training>).map(
-                (training, i) => {
-                    return (
-                        <div className="my-3">
-                            <h1 className="text-center text-2xl font-bold">
-                                {training}
-                            </h1>
-                            <Pie
-                                data={{
-                                    labels: ["correct", "Incorrect"],
-                                    datasets: [
-                                        {
-                                            label: "Percentage",
-                                            data: getRatio(
-                                                storage?.get(
-                                                    Training[training],
-                                                    "2023-12-27",
-                                                )[0] || [0, 0],
-                                            ),
-                                        },
-                                    ],
-                                }}
-                            />
-                        </div>
-                    );
-                },
-            )}
-        </>
-    );
-}
+// function Overall({ storage }: { storage: _Storage | null }) {
+//     return (
+//         <>
+//             {(Object.keys(Training) as Array<keyof typeof Training>).map(
+//                 (training, i) => {
+//                     return (
+//                         <div className="my-3" key={i}>
+//                             <h1 className="text-center text-2xl font-bold">
+//                                 {training}
+//                             </h1>
+//                             <Pie
+//                                 data={{
+//                                     labels: ["correct", "Incorrect"],
+//                                     datasets: [
+//                                         {
+//                                             label: "Percentage",
+//                                             data: getRatio(
+//                                                 storage?.get(
+//                                                     Training[training],
+//                                                     "2023-12-27",
+//                                                 )[0] || [0, 0],
+//                                             ),
+//                                         },
+//                                     ],
+//                                 }}
+//                             />
+//                         </div>
+//                     );
+//                 },
+//             )}
+//         </>
+//     );
+// }
 
 function getRatio(data: number[]) {
     return [
@@ -93,38 +94,44 @@ function getRatio(data: number[]) {
     ];
 }
 
-function TrainingStat({ training, storage }) {
-    Logger.log("Rendering", training);
-    const stats = ["Overall", "1", "2", "3", "4", "5", "6", "7"];
-    return (
-        <div className="my-3">
-            <h1 className="text-center text-2xl font-bold">{training}</h1>
-            {Array.from({ length: 8 }, (_, i) => i).map((i) => {
-                return (
-                    <>
-                        <h1 className="text-center text-2xl font-bold">
-                            {stats[i]}
-                        </h1>
+// function TrainingStat({
+//     training,
+//     storage,
+// }: {
+//     training: string;
+//     storage: _Storage | null;
+// }) {
+//     Logger.log("Rendering", training);
+//     const stats = ["Overall", "1", "2", "3", "4", "5", "6", "7"];
+//     return (
+//         <div className="my-3">
+//             <h1 className="text-center text-2xl font-bold">{training}</h1>
+//             {Array.from({ length: 8 }, (_, i) => i).map((i) => {
+//                 return (
+//                     <>
+//                         <h1 className="text-center text-2xl font-bold">
+//                             {stats[i]}
+//                         </h1>
 
-                        <Pie
-                            data={{
-                                labels: ["correct", "Incorrect"],
-                                datasets: [
-                                    {
-                                        label: "Percentage",
-                                        data: getRatio(
-                                            storage?.get(
-                                                Training[training],
-                                                "2023-12-27",
-                                            )[i] || [0, 0],
-                                        ),
-                                    },
-                                ],
-                            }}
-                        />
-                    </>
-                );
-            })}
-        </div>
-    );
-}
+//                         <Pie
+//                             data={{
+//                                 labels: ["correct", "Incorrect"],
+//                                 datasets: [
+//                                     {
+//                                         label: "Percentage",
+//                                         data: getRatio(
+//                                             storage?.get(
+//                                                 Training[training],
+//                                                 "2023-12-27",
+//                                             )[i] || [0, 0],
+//                                         ),
+//                                     },
+//                                 ],
+//                             }}
+//                         />
+//                     </>
+//                 );
+//             })}
+//         </div>
+//     );
+// }

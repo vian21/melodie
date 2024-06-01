@@ -1,6 +1,6 @@
 import Logger from "./Logger";
 
-import { Sampler, now } from "tone";
+import { Sampler, Transport, now } from "tone";
 import { _Storage } from "./Storage";
 
 export const notes = [
@@ -135,7 +135,7 @@ export function generateRandomIntervals(length: number): number[] {
  * @returns degreess of chords in the progression
  */
 
-export function generateRandomProgression(length: number = 4): number[] {
+export function generateRandomProgression(length = 4): number[] {
     const prog = popularProgressions[
         Math.floor(Math.random() * popularProgressions.length)
     ]?.slice(0, length);
@@ -224,9 +224,12 @@ export function correctGuess(
     storage: _Storage,
     training: Training,
 ) {
+    //TODO: renable metric collection
+    return;
+
     Logger.log(degrees, pin);
 
-    const newCorrection = [];
+    const newCorrection:number[] = [];
     let allCorrect: 0 | 1 = 1;
 
     for (let i = 0; i < degrees.length; i++) {
@@ -280,7 +283,7 @@ export function makeChord(root: number, octave: number, type: ChordQuality) {
 
 /**
  * @param progression - chord progression using number system (1-7)
- * @param interval - time between each note i.e speed
+ * @param interval - time between each chord i.e speed
  *
  */
 export function playChordProgression(

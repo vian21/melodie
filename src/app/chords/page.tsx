@@ -18,15 +18,19 @@ export default function ChordsHome() {
     const [speed, setSpeeed] = useState(5);
     const [octave, setOctave] = useState(2);
 
-    const [correction, setCorrection] = useState(new Array(NUMBER_OF_NOTES));
-    const [chordProgression, setChordProgression] = useState(
+    const [correction, setCorrection] = useState<number[]>(
+        new Array(NUMBER_OF_NOTES),
+    );
+    const [chordProgression, setChordProgression] = useState<number[]>(
         new Array(NUMBER_OF_NOTES),
     );
 
-    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES + 1));
+    const [pin, setPin] = useState<number[]>(new Array(NUMBER_OF_NOTES + 1));
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
-        newPin[index] = pinEntry;
+        if (pinEntry) {
+            newPin[index] = pinEntry;
+        }
         setPin(newPin);
     };
 
@@ -43,8 +47,6 @@ export default function ChordsHome() {
 
         setChordProgression(chordProgression);
     }, []);
-
-    useEffect(() => {}, [octave, speed]);
 
     const newProgression = () => {
         console.log("new Progression");

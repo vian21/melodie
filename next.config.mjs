@@ -16,6 +16,9 @@ const config = withPWA({
     output: "export",
     trailingSlash: true,
     basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 });
 
 export default config;

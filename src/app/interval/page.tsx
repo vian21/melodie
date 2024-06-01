@@ -18,14 +18,16 @@ export default function MelodyRandom() {
     const key = useRef(0);
     const [speed, setSpeeed] = useState(4);
     const [correction, setCorrection] = useState(new Array(numberOfNotes * 2));
-    const [melodyDegrees, setMelodyDegrees] = useState(
+    const [melodyDegrees, setMelodyDegrees] = useState<number[]>(
         new Array(numberOfNotes * 2),
     );
 
-    const [pin, setPin] = useState(new Array(numberOfNotes * 2));
+    const [pin, setPin] = useState<number[]>(new Array(numberOfNotes * 2));
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
-        newPin[index] = pinEntry;
+        if (pinEntry) {
+            newPin[index] = pinEntry;
+        }
         setPin(newPin);
     };
 
