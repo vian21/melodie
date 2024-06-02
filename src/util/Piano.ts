@@ -6,6 +6,7 @@ import { env } from "~/env.mjs";
 import Logger from "./Logger";
 
 export default function usePiano() {
+    //TODO: use a singleton
     const [piano, setPiano] = useState<Sampler | null>(null);
 
     useEffect(() => {
@@ -44,10 +45,11 @@ export default function usePiano() {
             },
             release: 1,
             baseUrl: `${env.NEXT_PUBLIC_BASEPATH}/sounds/piano/`,
+            onload: () => {
+                Logger.log("Piano loaded");
+                setPiano(piano);
+            },
         }).toDestination();
-
-        Logger.log("Piano loaded");
-        setPiano(piano);
 
         return () => {
             if (piano) {

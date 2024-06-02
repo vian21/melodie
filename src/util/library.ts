@@ -1,7 +1,7 @@
 import Logger from "./Logger";
 
-import { Sampler, Transport, now } from "tone";
-import { _Storage } from "./Storage";
+import { Sampler, now } from "tone";
+import { Storage } from "./Storage";
 
 export const notes = [
     "C",
@@ -221,12 +221,9 @@ export function correctGuess(
     degrees: number[],
     pin: number[],
     setCorrection: (arg0: number[]) => void,
-    storage: _Storage,
+    storage: Storage,
     training: Training,
 ) {
-    //TODO: renable metric collection
-    return;
-
     Logger.log(degrees, pin);
 
     const newCorrection:number[] = [];
@@ -239,13 +236,17 @@ export function correctGuess(
 
         newCorrection[i] = isCorrect;
 
-        storage.increment(training, degrees[i]!, isCorrect);
+        //TODO: bring back analytics
+        void allCorrect;
+        void storage;
+        void training;
+        // storage.increment(training, degrees[i]!, isCorrect);
     }
 
     setCorrection(newCorrection);
 
     //overall tries increment
-    storage.increment(training, 0, allCorrect);
+    // storage.increment(training, 0, allCorrect);
 }
 
 export enum ChordQuality {
@@ -283,7 +284,7 @@ export function makeChord(root: number, octave: number, type: ChordQuality) {
 
 /**
  * @param progression - chord progression using number system (1-7)
- * @param interval - time between each chord i.e speed
+ * @param interval - time each chord will be held for
  *
  */
 export function playChordProgression(
@@ -297,7 +298,9 @@ export function playChordProgression(
 
     const time = now();
 
-    progression.map((note, i) => {
+    progression.filter ((note)=> note)
+    .map((note, i) => {
+        if(!note) return
         let quality: ChordQuality = ChordQuality.MAJOR;
 
         if (note == 2 || note == 3 || note == 6) {

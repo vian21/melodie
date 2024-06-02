@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import usePiano from "~/util/Piano";
 import useStorage from "~/util/Storage";
@@ -36,25 +36,8 @@ export default function MelodyRandom() {
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
 
-    useEffect(() => {
-        const k_rand = generateRandomKey();
-        const melodyDegrees = generateRandomIntervals(numberOfNotes);
-
-        //set states
-        key.current = k_rand;
-
-        setMelody(melody);
-        setMelodyDegrees(melodyDegrees);
-    }, []);
-
-    useEffect(() => {
-        newMelody();
-    }, [numberOfNotes]);
-
-    const newMelody = () => {
+    const newMelody = useCallback(() => {
         console.log("new melody");
-        //get new key
-        // setKey(generateRandomKey());
 
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
 
@@ -64,7 +47,22 @@ export default function MelodyRandom() {
 
         //clear correction
         setCorrection(new Array(numberOfNotes));
-    };
+    }, [numberOfNotes]);
+
+    useEffect(() => {
+        const k_rand = generateRandomKey();
+        const melodyDegrees = generateRandomIntervals(numberOfNotes);
+
+        //set states
+        key.current = k_rand;
+
+        setMelody(melody);
+        setMelodyDegrees(melodyDegrees);
+    }, [melody, numberOfNotes]);
+
+    useEffect(() => {
+        newMelody();
+    }, [newMelody, numberOfNotes]);
 
     return (
         <div className="flex flex-col">

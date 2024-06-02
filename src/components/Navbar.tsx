@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 function NavLinks(props: { hidden: boolean }) {
@@ -25,8 +25,7 @@ function NavLinks(props: { hidden: boolean }) {
                     Dashboard
                 </Link>
             </li>
-
-    </>
+        </>
     );
 }
 
@@ -55,8 +54,8 @@ export default function NavBar() {
         }
     }
 
-    let dark = false;
-    const [mode, setMode] = useState(dark);
+    const dark = useRef(false);
+    const [mode, setMode] = useState(dark.current);
 
     const minWidth = 750;
     const [windowWidth, setWindowWidth] = useState(450);
@@ -68,7 +67,7 @@ export default function NavBar() {
     }
 
     useEffect(() => {
-        dark = localStorage.getItem("theme") === "dark" ? true : false;
+        dark.current = localStorage.getItem("theme") === "dark" ? true : false;
         setWindowWidth(window.innerWidth);
         setShowNav(window.innerWidth > minWidth);
 
@@ -93,7 +92,7 @@ export default function NavBar() {
         menu?.addEventListener("click", () => {
             setShowMenu(!showMenu);
         });
-    }, []);
+    }, [showMenu]);
 
     return (
         <div className="sticky flex w-full justify-between p-2">

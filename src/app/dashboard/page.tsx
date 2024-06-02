@@ -1,5 +1,5 @@
 "use client";
-import useStorage, { _Storage } from "~/util/Storage";
+import useStorage, { Storage } from "~/util/Storage";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -8,10 +8,10 @@ import {
     Colors,
 } from "chart.js";
 
-import { Pie } from "react-chartjs-2";
+// import { Pie } from "react-chartjs-2";
 import { Training } from "~/util/library";
 import { useState } from "react";
-import Logger from "~/util/Logger";
+// import Logger from "~/util/Logger";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors);
 
@@ -43,7 +43,7 @@ export default function Dashboard() {
     );
 }
 
-function renderView(view: string, storage: _Storage | null) {
+function renderView(view: string, _storage: Storage | null) {
     switch (view) {
         case "General":
             // return <Overall storage={storage} />;
@@ -87,7 +87,7 @@ function renderView(view: string, storage: _Storage | null) {
 //     );
 // }
 
-function getRatio(data: number[]) {
+function _getRatio(data: number[]) {
     return [
         (data[0]! * 100) / data[1]!,
         ((data[1]! - data[0]!) * 100) / data[1]!,

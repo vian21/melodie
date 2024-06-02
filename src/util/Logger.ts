@@ -2,9 +2,8 @@
  * Logger module
  *
  */
-// @ts-nocheck TODO: find a way to fix this
 class _Logger {
-    print(level, ...message: any[]) {
+    print(level:DebugLevel, ...message: unknown[]) {
         if (process.env.DEBUG == "false") return;
 
         console[level](`[${level.toUpperCase()}]`, this.getTime(), ...message);
@@ -22,23 +21,23 @@ class _Logger {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 
-    log(...args: any[]) {
+    log(...args: unknown[]) {
         this.print(DebugLevel.LOG, args);
     }
 
-    warn(...args: any[]) {
+    warn(...args: unknown[]) {
         this.print(DebugLevel.WARNING, args);
     }
 
-    error(...args: any[]) {
+    error(...args: unknown[]) {
         this.print(DebugLevel.ERROR, args);
     }
 }
 
-const DebugLevel = {
-    LOG: "log",
-    WARNING: "warn",
-    ERROR: "error",
+enum DebugLevel {
+    LOG = "log",
+    WARNING = "warn",
+    ERROR = "error",
 };
 
 const Logger = Object.freeze(new _Logger());

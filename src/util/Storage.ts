@@ -14,7 +14,7 @@ const STAT_RECORD_INIT = [
     [0, 0],
 ];
 
-type STAT_INDEX = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+// type STAT_INDEX = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 function getCurrentDate(): string {
     const date = new Date();
@@ -25,10 +25,12 @@ function getCurrentDate(): string {
     return `${year}-${month}-${day}`;
 }
 
+type StorageObject = Record<string, number[][]>;
+
 /**
  * Local Storage utility class
  */
-export class _Storage {
+export class Storage {
     date = "";
 
     constructor() {
@@ -36,21 +38,21 @@ export class _Storage {
     }
 
     save(training: Training, date: string, data: number[][]) {
-        const db = JSON.parse(localStorage.getItem(training) || "{}");
+        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
 
-        db[date] = data;
+        db.date = data;
         localStorage.setItem(training, JSON.stringify(db));
     }
 
     get(training: Training, date: string) {
-        const db = JSON.parse(localStorage.getItem(training) || "{}");
+        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
 
-        if (db[date] == null) {
+        if (db.date == null) {
             this.initializeRecord(training, date);
             return STAT_RECORD_INIT;
         }
 
-        return db[date];
+        return db.date;
     }
 
     /**
@@ -58,21 +60,21 @@ export class _Storage {
      * @param type - 0-7 specifying which count to increment. 0: overall count, 1: count for tonic degree, 2: count for second degree, ...
      */
     increment(training: Training, type: number, increment: 0 | 1) {
-        const db = JSON.parse(localStorage.getItem(training) || "{}");
+        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
 
-        if (db[this.date] == null) {
-            db[this.date] = STAT_RECORD_INIT;
+        if (db.date == null) {
+            db.date = STAT_RECORD_INIT;
         }
 
-        db[this.date][type][0] += increment;
-        db[this.date][type][1]++;
+        db.date[type]![0] += increment;
+        db.date[type]![1]++;
 
         localStorage.setItem(training, JSON.stringify(db));
         Logger.log("Incremented " + this.date + " ,type: " + type);
     }
 
     initializeRecord(training: Training, date: string) {
-        const db = JSON.parse(localStorage.getItem(training) || "{}");
+        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}")  as StorageObject;
 
         db[date] = STAT_RECORD_INIT;
 
@@ -81,10 +83,10 @@ export class _Storage {
 }
 
 export default function useStorage() {
-    const [storage, setStorage] = useState<_Storage | null>(null);
+    const [storage, setStorage] = useState<Storage | null>(null);
 
     useEffect(() => {
-        const storage = new _Storage();
+        const storage = new Storage();
 
         Logger.log("Storage loaded");
         setStorage(storage);

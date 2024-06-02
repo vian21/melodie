@@ -1,3 +1,7 @@
+/**
+ * BackingTrack - Playground to play custom chord progression backing tracks
+ * Ref: https://jsfiddle.net/GarrettBodley/435jp1fa/
+ */
 "use client";
 
 import { useRef, useState } from "react";
@@ -11,7 +15,7 @@ import { notes } from "~/util/library";
 
 import { playChordProgression } from "~/util/library";
 
-export default function MelodyRandom() {
+export default function BackingTrack() {
     const [numberOfNotes, setNumberOfNotes] = useState(4);
     const [octave, setOctave] = useState(2);
     const key = useRef(0);
@@ -20,6 +24,7 @@ export default function MelodyRandom() {
     const [audioContextStarted, setStarted] = useState(false);
     const [loop, setLoop] = useState<Loop | null>(null);
     const [pin, setPin] = useState<number[]>(new Array(numberOfNotes));
+
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
         if (pinEntry) {
@@ -42,9 +47,9 @@ export default function MelodyRandom() {
 
         if (playing) {
             Logger.log("Stopping loop!");
-            loop?.stop();
-            loop?.dispose();
-            Transport.stop();
+            loop!.stop()
+            loop!.dispose()
+            Transport.stop(0);
             return;
         }
 
@@ -52,10 +57,10 @@ export default function MelodyRandom() {
 
         const _loop = new Loop(() => {
             Logger.log("Starting loop!");
-
             playChordProgression(piano, pin, key.current, octave, beatLength);
         }, beatLength * pin.length).start(0);
         setLoop(_loop);
+
         Transport.start();
     }
 
@@ -91,7 +96,10 @@ export default function MelodyRandom() {
                     max="10"
                     value={numberOfNotes}
                     onChange={(e) => {
-                        setNumberOfNotes(Number(e.target.value));
+                        const n = Number(e.target.value)
+                        setNumberOfNotes(n);
+                        pin.length = n;
+                        setPin(pin)
                     }}
                 />
                 <span className="px-2 text-xl">{numberOfNotes}</span>
@@ -147,7 +155,7 @@ export default function MelodyRandom() {
             {/* Play */}
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
-                onClick={void handleClick(piano)}
+                onClick={() => void handleClick(piano)}
             >
                 {playing ? "Stop" : "Play"}
             </button>

@@ -17,7 +17,7 @@ const config = withPWA({
     trailingSlash: true,
     basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
     eslint: {
-        ignoreDuringBuilds: true,
+        ignoreDuringBuilds: false,
     },
 });
 

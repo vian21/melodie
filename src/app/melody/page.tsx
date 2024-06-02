@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import Logger from "~/util/Logger";
 import usePiano from "~/util/Piano";
@@ -36,6 +36,15 @@ export default function MelodyRandom() {
     const piano = usePiano();
     const storage = useStorage();
 
+    const newMelody = useCallback(() => {
+        // Set states
+        setMelodyDegrees(generateRandomMelody(numberOfNotes));
+
+        // Clear correction
+        setPin(new Array(numberOfNotes));
+        setCorrection(new Array(numberOfNotes));
+    }, [numberOfNotes]);
+
     useEffect(() => {
         const k_rand = generateRandomKey();
         Logger.log("Random Key gen", k_rand);
@@ -43,21 +52,12 @@ export default function MelodyRandom() {
         newMelody();
 
         key.current = k_rand;
-    }, []);
+    }, [newMelody]);
 
     useEffect(() => {
         Logger.log("Number of notes changed");
         newMelody();
-    }, [numberOfNotes]);
-
-    const newMelody = () => {
-        // Set states
-        setMelodyDegrees(generateRandomMelody(numberOfNotes));
-
-        // Clear correction
-        setPin(new Array(numberOfNotes));
-        setCorrection(new Array(numberOfNotes));
-    };
+    }, [newMelody, numberOfNotes]);
 
     return (
         <div className="flex flex-col">
@@ -168,7 +168,10 @@ export default function MelodyRandom() {
 
                 <button
                     onClick={() => {
-                        if (storage == null) return;
+                        if (storage == null) {
+                            Logger.warn("Storage undefined!");
+                            return;
+                        }
 
                         correctGuess(
                             melodyDegrees,

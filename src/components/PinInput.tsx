@@ -48,7 +48,7 @@ const PinInput: React.FC<PinInputGridProps> = ({
             return;
         }
         const pinNumber = Number(value.trim());
-        if (isNaN(pinNumber) ?? value.length === 0) {
+        if (Number.isNaN(pinNumber) ?? value.length === 0) {
             //TODO: not working on Firefox and Safari
             return;
         }
