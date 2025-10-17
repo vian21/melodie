@@ -40,7 +40,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-
-# Next-PWA
-/public/sw.*
-/public/workbox*
+public/sw.*
+public/workbox*
+package-lock.json

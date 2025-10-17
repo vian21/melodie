@@ -16,6 +16,22 @@ const STAT_RECORD_INIT = [
 
 // type STAT_INDEX = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
+export interface AttemptMetadata {
+    timestamp: number;
+    responseTime: number;
+    speed: number;
+    octave: number;
+    length: number;
+    degrees: number[];
+    guesses: number[];
+    results: number[];
+}
+
+export interface DetailedStats {
+    attempts: AttemptMetadata[];
+    confusionMatrix: { [key: string]: number };
+}
+
 function getCurrentDate(): string {
     const date = new Date();
     const year = date.getFullYear();
@@ -25,12 +41,7 @@ function getCurrentDate(): string {
     return `${year}-${month}-${day}`;
 }
 
-type StorageObject = Record<string, number[][]>;
-
-/**
- * Local Storage utility class
- */
-export class Storage {
+export class _Storage {
     date = "";
 
     constructor() {
@@ -55,10 +66,6 @@ export class Storage {
         return db.date;
     }
 
-    /**
-     * increment tally[correct_tries, number of tries] for specified scale degree or training
-     * @param type - 0-7 specifying which count to increment. 0: overall count, 1: count for tonic degree, 2: count for second degree, ...
-     */
     increment(training: Training, type: number, increment: 0 | 1) {
         const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
 
@@ -79,6 +86,55 @@ export class Storage {
         db[date] = STAT_RECORD_INIT;
 
         localStorage.setItem(training, JSON.stringify(db));
+    }
+
+    saveAttempt(training: Training, metadata: AttemptMetadata) {
+        const key = `${training}_detailed`;
+        const db = JSON.parse(
+            localStorage.getItem(key) ||
+                '{"attempts": [], "confusionMatrix": {}}'
+        );
+
+        db.attempts.push(metadata);
+
+        metadata.degrees.forEach((actual, i) => {
+            const guess = metadata.guesses[i];
+            if (guess !== undefined && actual !== guess) {
+                const confusionKey = `${actual}->${guess}`;
+                db.confusionMatrix[confusionKey] =
+                    (db.confusionMatrix[confusionKey] || 0) + 1;
+            }
+        });
+
+        localStorage.setItem(key, JSON.stringify(db));
+    }
+
+    getDetailedStats(training: Training): DetailedStats {
+        const key = `${training}_detailed`;
+        const db = JSON.parse(
+            localStorage.getItem(key) ||
+                '{"attempts": [], "confusionMatrix": {}}'
+        );
+        return db;
+    }
+
+    getProgressionTrend(
+        training: Training,
+        days: number = 30
+    ): Array<{ date: string; accuracy: number }> {
+        const db = JSON.parse(localStorage.getItem(training) || "{}");
+        const dates = Object.keys(db).sort().slice(-days);
+
+        return dates.map((date) => {
+            const data = db[date];
+            if (data && data[0] && data[0][1] > 0) {
+                return {
+                    date,
+                    accuracy: (data[0][0] / data[0][1]) * 100,
+                };
+            }
+            return { date, accuracy: 0 };
+        });
     }
 }
 

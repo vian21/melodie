@@ -38,7 +38,7 @@ const PinInput: React.FC<PinInputGridProps> = ({
 
     const onChange = (
         event: React.ChangeEvent<HTMLInputElement>,
-        index: number,
+        index: number
     ) => {
         const previousValue = event.target.defaultValue;
         const valuesArray = event.target.value.split("");
@@ -63,7 +63,7 @@ const PinInput: React.FC<PinInputGridProps> = ({
 
     const onKeyDown = (
         event: React.KeyboardEvent<HTMLInputElement>,
-        index: number,
+        index: number
     ) => {
         const keyboardKeyCode = event.nativeEvent.code;
         if (keyboardKeyCode !== BACKSPACE_KEY) {
@@ -84,7 +84,7 @@ const PinInput: React.FC<PinInputGridProps> = ({
                     <input
                         type="number"
                         className={`text-md m-3 w-12 border-2 ${verificationColor(
-                            verification?.[index],
+                            verification?.[index]
                         )} p-3 text-center text-2xl text-black [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
                         onKeyDown={(event) => onKeyDown(event, index)}
                         key={index}

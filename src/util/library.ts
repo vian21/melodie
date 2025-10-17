@@ -206,7 +206,7 @@ export function getNoteName(index: number) {
 
 export function getMelodyNotesNames(
     melody: number[],
-    octave: number,
+    octave: number
 ): string[] {
     return melody.map((note) => {
         const _note = getNoteName(note);
@@ -223,6 +223,12 @@ export function correctGuess(
     setCorrection: (arg0: number[]) => void,
     storage: Storage,
     training: Training,
+    metadata?: {
+        responseTime: number;
+        speed: number;
+        octave: number;
+        startTime: number;
+    }
 ) {
     Logger.log(degrees, pin);
 
@@ -246,7 +252,20 @@ export function correctGuess(
     setCorrection(newCorrection);
 
     //overall tries increment
-    // storage.increment(training, 0, allCorrect);
+    storage.increment(training, 0, allCorrect);
+
+    if (metadata) {
+        storage.saveAttempt(training, {
+            timestamp: Date.now(),
+            responseTime: Date.now() - metadata.startTime,
+            speed: metadata.speed,
+            octave: metadata.octave,
+            length: degrees.length,
+            degrees,
+            guesses: pin,
+            results: newCorrection,
+        });
+    }
 }
 
 export enum ChordQuality {
@@ -292,7 +311,7 @@ export function playChordProgression(
     progression: number[],
     key: number,
     octave: number,
-    interval: number,
+    interval: number
 ) {
     const scale = getMajorScale(key);
 
@@ -328,7 +347,7 @@ export function playMelody(
     melody: number[],
     key: number,
     octave: number,
-    interval: number,
+    interval: number
 ) {
     const scale = getMajorScale(key);
 
@@ -340,7 +359,7 @@ export function playMelody(
         Piano.triggerAttackRelease(
             `${getNoteName(scale[note - 1]!)}${octave}`,
             interval,
-            time + interval * i,
+            time + interval * i
         );
     });
 }

@@ -18,14 +18,13 @@ export default function ChordsHome() {
     const [speed, setSpeeed] = useState(5);
     const [octave, setOctave] = useState(2);
 
-    const [correction, setCorrection] = useState<number[]>(
-        new Array(NUMBER_OF_NOTES),
-    );
-    const [chordProgression, setChordProgression] = useState<number[]>(
-        new Array(NUMBER_OF_NOTES),
+    const [correction, setCorrection] = useState(new Array(NUMBER_OF_NOTES));
+    const [chordProgression, setChordProgression] = useState(
+        new Array(NUMBER_OF_NOTES)
     );
 
-    const [pin, setPin] = useState<number[]>(new Array(NUMBER_OF_NOTES + 1));
+    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES + 1));
+    const [startTime, setStartTime] = useState(Date.now());
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
         if (pinEntry) {
@@ -50,17 +49,12 @@ export default function ChordsHome() {
 
     const newProgression = () => {
         console.log("new Progression");
-        //get new key
-        // setKey(generateRandomKey());
-
         const progression = generateRandomProgression(NUMBER_OF_NOTES);
 
-        //set states
         setChordProgression(progression);
         setPin(new Array(NUMBER_OF_NOTES));
-
-        //clear correction
         setCorrection(new Array(NUMBER_OF_NOTES));
+        setStartTime(Date.now());
     };
 
     return (
@@ -113,7 +107,7 @@ export default function ChordsHome() {
                         chordProgression,
                         key.current,
                         octave,
-                        speed / 4,
+                        speed / 4
                     );
                 }}
             >
@@ -162,6 +156,12 @@ export default function ChordsHome() {
                             setCorrection,
                             storage,
                             Training.CHORD_PROGRESSION,
+                            {
+                                responseTime: Date.now() - startTime,
+                                speed,
+                                octave,
+                                startTime,
+                            }
                         );
                     }}
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-xl text-white"

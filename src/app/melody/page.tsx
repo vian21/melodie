@@ -20,11 +20,12 @@ export default function MelodyRandom() {
     const key = useRef(0);
     const [speed, setSpeeed] = useState(5);
     const [correction, setCorrection] = useState(new Array(numberOfNotes));
-    const [melodyDegrees, setMelodyDegrees] = useState<number[]>(
-        new Array(numberOfNotes),
+    const [melodyDegrees, setMelodyDegrees] = useState(
+        new Array(numberOfNotes)
     );
 
-    const [pin, setPin] = useState<number[]>(new Array(numberOfNotes));
+    const [pin, setPin] = useState(new Array(numberOfNotes));
+    const [startTime, setStartTime] = useState(Date.now());
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
         if (pinEntry) {
@@ -57,7 +58,14 @@ export default function MelodyRandom() {
     useEffect(() => {
         Logger.log("Number of notes changed");
         newMelody();
-    }, [newMelody, numberOfNotes]);
+    }, [numberOfNotes]);
+
+    const newMelody = () => {
+        setMelodyDegrees(generateRandomMelody(numberOfNotes));
+        setPin(new Array(numberOfNotes));
+        setCorrection(new Array(numberOfNotes));
+        setStartTime(Date.now());
+    };
 
     return (
         <div className="flex flex-col">
@@ -126,7 +134,7 @@ export default function MelodyRandom() {
                         melodyDegrees,
                         key.current,
                         octave,
-                        speed / 4,
+                        speed / 4
                     );
                 }}
             >
@@ -179,6 +187,12 @@ export default function MelodyRandom() {
                             setCorrection,
                             storage,
                             Training.MELODY,
+                            {
+                                responseTime: Date.now() - startTime,
+                                speed,
+                                octave,
+                                startTime,
+                            }
                         );
                     }}
                     className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
