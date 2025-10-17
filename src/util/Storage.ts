@@ -41,7 +41,9 @@ function getCurrentDate(): string {
     return `${year}-${month}-${day}`;
 }
 
-export class _Storage {
+type StorageObject = Record<string, number[][]>;
+
+export class Storage {
     date = "";
 
     constructor() {
@@ -49,14 +51,18 @@ export class _Storage {
     }
 
     save(training: Training, date: string, data: number[][]) {
-        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
+        const db: StorageObject = JSON.parse(
+            localStorage.getItem(training) ?? "{}"
+        ) as StorageObject;
 
         db.date = data;
         localStorage.setItem(training, JSON.stringify(db));
     }
 
     get(training: Training, date: string) {
-        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
+        const db: StorageObject = JSON.parse(
+            localStorage.getItem(training) ?? "{}"
+        ) as StorageObject;
 
         if (db.date == null) {
             this.initializeRecord(training, date);
@@ -67,7 +73,9 @@ export class _Storage {
     }
 
     increment(training: Training, type: number, increment: 0 | 1) {
-        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}") as StorageObject;
+        const db: StorageObject = JSON.parse(
+            localStorage.getItem(training) ?? "{}"
+        ) as StorageObject;
 
         if (db.date == null) {
             db.date = STAT_RECORD_INIT;
@@ -81,7 +89,9 @@ export class _Storage {
     }
 
     initializeRecord(training: Training, date: string) {
-        const db: StorageObject = JSON.parse(localStorage.getItem(training) ?? "{}")  as StorageObject;
+        const db: StorageObject = JSON.parse(
+            localStorage.getItem(training) ?? "{}"
+        ) as StorageObject;
 
         db[date] = STAT_RECORD_INIT;
 

@@ -1,5 +1,5 @@
 "use client";
-import useStorage, { _Storage } from "~/util/Storage";
+import useStorage, { Storage } from "~/util/Storage";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -53,22 +53,20 @@ export default function Dashboard() {
     );
 }
 
-function renderView(view: string, storage: _Storage | null) {
+function renderView(view: string, storage: Storage | null) {
     if (!storage) {
         return <div className="text-center">Loading...</div>;
     }
 
     switch (view) {
         case "General":
-            // return <Overall storage={storage} />;
-            return <></>;
+            return <Overall storage={storage} />;
         default:
-            // return <TrainingStat training={view} storage={storage} />;
-            return <></>;
+            return <TrainingStat training={view} storage={storage} />;
     }
 }
 
-function getAllDatesData(storage: _Storage, training: Training): number[][] {
+function getAllDatesData(storage: Storage, training: Training): number[][] {
     const allData: number[][] = Array.from({ length: 8 }, () => [0, 0]);
 
     const rawData = localStorage.getItem(training);
@@ -91,7 +89,7 @@ function getAllDatesData(storage: _Storage, training: Training): number[][] {
     return allData;
 }
 
-function Overall({ storage }: { storage: _Storage }) {
+function Overall({ storage }: { storage: Storage }) {
     const statsData = useMemo(() => {
         return (Object.keys(Training) as Array<keyof typeof Training>).map(
             (training) => {
@@ -191,7 +189,7 @@ function TrainingStat({
     storage,
 }: {
     training: string;
-    storage: _Storage;
+    storage: Storage;
 }) {
     const degreeNames = [
         "Overall",

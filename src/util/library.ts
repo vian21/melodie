@@ -1,7 +1,7 @@
 import Logger from "./Logger";
 
 import { Sampler, now, Transport, Part } from "tone";
-import { _Storage } from "./Storage";
+import { Storage } from "./Storage";
 
 let __currentParts: { notes?: Part; chords?: Part } = {};
 
@@ -263,7 +263,7 @@ export function correctGuess(
 ) {
     Logger.log(degrees, pin);
 
-    const newCorrection:number[] = [];
+    const newCorrection: number[] = [];
     let allCorrect: 0 | 1 = 1;
 
     for (let i = 0; i < degrees.length; i++) {
@@ -395,24 +395,25 @@ export function playChordProgression(
 
     const time = now();
 
-    progression.filter ((note)=> note)
-    .map((note, i) => {
-        if(!note) return
-        let quality: ChordQuality = ChordQuality.MAJOR;
+    progression
+        .filter((note) => note)
+        .map((note, i) => {
+            if (!note) return;
+            let quality: ChordQuality = ChordQuality.MAJOR;
 
-        if (note == 2 || note == 3 || note == 6) {
-            quality = ChordQuality.MINOR;
-        }
+            if (note == 2 || note == 3 || note == 6) {
+                quality = ChordQuality.MINOR;
+            }
 
-        if (note == 7) {
-            quality = ChordQuality.DIMINISHED;
-        }
+            if (note == 7) {
+                quality = ChordQuality.DIMINISHED;
+            }
 
-        const chord = makeChord(scale[note - 1]!, octave, quality);
-        Logger.log("Playing:", chord);
+            const chord = makeChord(scale[note - 1]!, octave, quality);
+            Logger.log("Playing:", chord);
 
-        Piano.triggerAttackRelease(chord, interval, time + interval * i);
-    });
+            Piano.triggerAttackRelease(chord, interval, time + interval * i);
+        });
 }
 
 /**

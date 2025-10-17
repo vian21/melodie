@@ -27,6 +27,12 @@ export default function HomePage() {
                 </Link>
                 <Link
                     className="m-auto my-3 w-4/5 bg-blue-300 p-3 text-xl text-white"
+                    href="/backing-track"
+                >
+                    🎹 Backing Track →
+                </Link>
+                <Link
+                    className="m-auto my-3 w-4/5 bg-blue-300 p-3 text-xl text-white"
                     href="/licks"
                 >
                     Guitar Licks →

@@ -37,17 +37,26 @@ export default function MelodyRandom() {
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
 
-    const newMelody = useCallback(() => {
-        console.log("new melody");
+    // const newMelody = useCallback(() => {
+    //     console.log("new melody");
 
+    //     const melodyDegrees = generateRandomIntervals(numberOfNotes);
+
+    //     //set states
+    //     setMelodyDegrees(melodyDegrees);
+    //     setPin(new Array(numberOfNotes));
+
+    //     //clear correction
+    //     setCorrection(new Array(numberOfNotes));
+    // }, [numberOfNotes]);
+
+    const newMelody = useCallback(() => {
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
 
-        //set states
         setMelodyDegrees(melodyDegrees);
         setPin(new Array(numberOfNotes));
-
-        //clear correction
         setCorrection(new Array(numberOfNotes));
+        setStartTime(Date.now());
     }, [numberOfNotes]);
 
     useEffect(() => {
@@ -64,15 +73,6 @@ export default function MelodyRandom() {
     useEffect(() => {
         newMelody();
     }, [numberOfNotes]);
-
-    const newMelody = () => {
-        const melodyDegrees = generateRandomIntervals(numberOfNotes);
-
-        setMelodyDegrees(melodyDegrees);
-        setPin(new Array(numberOfNotes));
-        setCorrection(new Array(numberOfNotes));
-        setStartTime(Date.now());
-    };
 
     return (
         <div className="flex flex-col">

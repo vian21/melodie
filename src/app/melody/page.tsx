@@ -46,6 +46,13 @@ export default function MelodyRandom() {
         setCorrection(new Array(numberOfNotes));
     }, [numberOfNotes]);
 
+    // const newMelody = () => {
+    //     setMelodyDegrees(generateRandomMelody(numberOfNotes));
+    //     setPin(new Array(numberOfNotes));
+    //     setCorrection(new Array(numberOfNotes));
+    //     setStartTime(Date.now());
+    // };
+
     useEffect(() => {
         const k_rand = generateRandomKey();
         Logger.log("Random Key gen", k_rand);
@@ -59,13 +66,6 @@ export default function MelodyRandom() {
         Logger.log("Number of notes changed");
         newMelody();
     }, [numberOfNotes]);
-
-    const newMelody = () => {
-        setMelodyDegrees(generateRandomMelody(numberOfNotes));
-        setPin(new Array(numberOfNotes));
-        setCorrection(new Array(numberOfNotes));
-        setStartTime(Date.now());
-    };
 
     return (
         <div className="flex flex-col">

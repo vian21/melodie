@@ -47,8 +47,8 @@ export default function BackingTrack() {
 
         if (playing) {
             Logger.log("Stopping loop!");
-            loop!.stop()
-            loop!.dispose()
+            loop!.stop();
+            loop!.dispose();
             Transport.stop(0);
             return;
         }
@@ -96,10 +96,10 @@ export default function BackingTrack() {
                     max="10"
                     value={numberOfNotes}
                     onChange={(e) => {
-                        const n = Number(e.target.value)
+                        const n = Number(e.target.value);
                         setNumberOfNotes(n);
                         pin.length = n;
-                        setPin(pin)
+                        setPin(pin);
                     }}
                 />
                 <span className="px-2 text-xl">{numberOfNotes}</span>

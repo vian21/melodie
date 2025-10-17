@@ -3,7 +3,7 @@
  *
  */
 class _Logger {
-    print(level:DebugLevel, ...message: unknown[]) {
+    print(level: DebugLevel, ...message: unknown[]) {
         if (process.env.DEBUG == "false") return;
 
         console[level](`[${level.toUpperCase()}]`, this.getTime(), ...message);
@@ -38,7 +38,7 @@ enum DebugLevel {
     LOG = "log",
     WARNING = "warn",
     ERROR = "error",
-};
+}
 
 const Logger = Object.freeze(new _Logger());
 
