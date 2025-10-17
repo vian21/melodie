@@ -49,10 +49,6 @@ export class LickStorage {
                 if (!hasTag) return false;
             }
 
-            if (filter.difficulty && filter.difficulty.length > 0) {
-                if (!filter.difficulty.includes(lick.difficulty)) return false;
-            }
-
             if (filter.overChords && filter.overChords.length > 0) {
                 const hasChord = filter.overChords.every((chord) =>
                     lick.context.overChords.includes(chord)
@@ -91,10 +87,6 @@ export class LickStorage {
             lick.tags.forEach((tag) => tagSet.add(tag));
         });
         return Array.from(tagSet).sort();
-    }
-
-    getLicksByDifficulty(difficulty: number): Lick[] {
-        return this.licks.filter((lick) => lick.difficulty === difficulty);
     }
 
     getLicksByChordContext(chordDegrees: number[]): Lick[] {

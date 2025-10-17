@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Sampler } from "tone";
-import { Lick, playLick } from "../../../util/library";
+import {
+    Lick,
+    playLick,
+    stopAllPlayback,
+    getLickDuration,
+} from "../../../util/library";
 
 interface Props {
     lick: Lick;
@@ -19,14 +24,12 @@ export function LickPlayer({ lick, piano, musicKey }: Props) {
     const handlePlay = () => {
         if (!piano) return;
 
-        piano.releaseAll();
+        stopAllPlayback(piano);
 
         setIsPlaying(true);
         playLick(piano, lick, musicKey, octave, playChords, speed);
 
-        const duration =
-            (lick.notes[lick.notes.length - 1]?.timing || 0) +
-            (lick.notes[lick.notes.length - 1]?.duration || 0);
+        const duration = getLickDuration(lick);
         setTimeout(() => setIsPlaying(false), (duration / speed) * 1000);
     };
 

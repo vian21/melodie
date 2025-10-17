@@ -1,7 +1,35 @@
 import Logger from "./Logger";
 
-import { Sampler, now } from "tone";
-import { Storage } from "./Storage";
+import { Sampler, now, Transport, Part } from "tone";
+import { _Storage } from "./Storage";
+
+let __currentParts: { notes?: Part; chords?: Part } = {};
+
+export function stopAllPlayback(Piano?: Sampler) {
+    try {
+        Transport.stop();
+        Transport.cancel(0);
+    } catch {}
+    if (__currentParts.notes) {
+        try {
+            __currentParts.notes.stop();
+            __currentParts.notes.dispose();
+        } catch {}
+        __currentParts.notes = undefined;
+    }
+    if (__currentParts.chords) {
+        try {
+            __currentParts.chords.stop();
+            __currentParts.chords.dispose();
+        } catch {}
+        __currentParts.chords = undefined;
+    }
+    if (Piano) {
+        try {
+            Piano.releaseAll();
+        } catch {}
+    }
+}
 
 export const notes = [
     "C",
@@ -313,14 +341,12 @@ export interface Lick {
         inKey: KeyType;
     };
     tags: string[];
-    difficulty: number;
     tempo: number;
     timeSignature: string;
 }
 
 export interface LickFilter {
     tags?: string[];
-    difficulty?: number[];
     overChords?: number[];
     inKey?: KeyType;
     searchTerm?: string;
@@ -445,9 +471,7 @@ export function playLickNotes(
     key: number,
     baseOctave: number,
     speed: number
-): void {
-    const time = now();
-
+): Part {
     const groupedByTiming: Map<number, LickNote[]> = new Map();
     notes.forEach((note) => {
         const existing = groupedByTiming.get(note.timing) || [];
@@ -455,19 +479,25 @@ export function playLickNotes(
         groupedByTiming.set(note.timing, existing);
     });
 
-    groupedByTiming.forEach((notesAtTime, timing) => {
+    const events = Array.from(groupedByTiming.entries())
+        .map(([timing, notesAtTime]) => [timing / speed, notesAtTime] as any)
+        .sort((a, b) => a[0] - b[0]);
+
+    const part = new Part((time: number, value: any) => {
+        const notesAtTime = value as LickNote[];
         const noteNames = notesAtTime.map((n) =>
             lickNoteToNoteName(n, key, baseOctave)
         );
-        const duration = notesAtTime[0]!.duration / speed;
-        const startTime = time + timing / speed;
-
+        const duration = (notesAtTime[0]?.duration || 0.5) / speed;
         if (noteNames.length === 1) {
-            Piano.triggerAttackRelease(noteNames[0]!, duration, startTime);
+            Piano.triggerAttackRelease(noteNames[0]!, duration, time);
         } else {
-            Piano.triggerAttackRelease(noteNames, duration, startTime);
+            Piano.triggerAttackRelease(noteNames, duration, time);
         }
-    });
+    }, events as any);
+
+    part.start(0);
+    return part as Part;
 }
 
 export function playLickChords(
@@ -476,18 +506,23 @@ export function playLickChords(
     key: number,
     octave: number,
     speed: number
-): void {
+): Part {
     const scale = getMajorScale(key);
-    const time = now();
 
-    chords.forEach((chordCtx) => {
+    const events = chords
+        .map((chordCtx) => [chordCtx.timing / speed, chordCtx] as any)
+        .sort((a, b) => a[0] - b[0]);
+
+    const part = new Part((time: number, value: any) => {
+        const chordCtx = value as ChordContext;
         const root = scale[chordCtx.degree - 1]!;
         const chord = makeChord(root, octave, chordCtx.quality);
         const duration = chordCtx.duration / speed;
-        const startTime = time + chordCtx.timing / speed;
+        Piano.triggerAttackRelease(chord, duration, time);
+    }, events as any);
 
-        Piano.triggerAttackRelease(chord, duration, startTime);
-    });
+    part.start(0);
+    return part as Part;
 }
 
 export function playLick(
@@ -498,9 +533,27 @@ export function playLick(
     playChords: boolean = true,
     speed: number = 1.0
 ): void {
+    stopAllPlayback(Piano);
+
     if (playChords && lick.chords.length > 0) {
-        playLickChords(Piano, lick.chords, key, baseOctave - 1, speed);
+        __currentParts.chords = playLickChords(
+            Piano,
+            lick.chords,
+            key,
+            baseOctave - 1,
+            speed
+        );
     }
 
-    playLickNotes(Piano, lick.notes, key, baseOctave, speed);
+    __currentParts.notes = playLickNotes(
+        Piano,
+        lick.notes,
+        key,
+        baseOctave,
+        speed
+    );
+
+    try {
+        Transport.start();
+    } catch {}
 }
