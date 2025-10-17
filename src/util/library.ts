@@ -32,6 +32,8 @@ export const popularProgressions = [
     [1, 4, 6, 5],
     [1, 4, 2, 5],
     [1, 5, 6, 4],
+    [1, 6, 4, 5],
+    [1, 6, 5, 4],
 
     [2, 4, 1, 5],
     [2, 4, 6, 5],
@@ -49,6 +51,7 @@ export const popularProgressions = [
     [4, 3, 2, 5],
     [4, 3, 5, 1],
     [4, 5, 1, 6],
+    [4, 5, 3, 6],
     [4, 5, 6, 1],
     [4, 6, 1, 5],
     [4, 6, 5, 1],
@@ -272,6 +275,55 @@ export enum ChordQuality {
     MINOR,
     MAJOR,
     DIMINISHED,
+    DOM7,
+    MAJ7,
+    MIN7,
+}
+
+export enum KeyType {
+    MAJOR,
+    MINOR,
+    HARMONIC_MINOR,
+    MELODIC_MINOR,
+    PHRYGIAN,
+}
+
+export interface LickNote {
+    degree: number;
+    timing: number;
+    duration: number;
+    octave?: number;
+}
+
+export interface ChordContext {
+    degree: number;
+    timing: number;
+    duration: number;
+    quality: ChordQuality;
+}
+
+export interface Lick {
+    id: string;
+    name: string;
+    description: string;
+    notes: LickNote[];
+    chords: ChordContext[];
+    context: {
+        overChords: number[];
+        inKey: KeyType;
+    };
+    tags: string[];
+    difficulty: number;
+    tempo: number;
+    timeSignature: string;
+}
+
+export interface LickFilter {
+    tags?: string[];
+    difficulty?: number[];
+    overChords?: number[];
+    inKey?: KeyType;
+    searchTerm?: string;
 }
 
 /**
@@ -362,4 +414,93 @@ export function playMelody(
             time + interval * i
         );
     });
+}
+
+export function getLickDuration(lick: Lick): number {
+    if (lick.notes.length === 0) return 0;
+
+    const lastNote = lick.notes.reduce((latest, note) => {
+        const noteEnd = note.timing + note.duration;
+        const latestEnd = latest.timing + latest.duration;
+        return noteEnd > latestEnd ? note : latest;
+    });
+
+    return lastNote.timing + lastNote.duration;
+}
+
+export function lickNoteToNoteName(
+    note: LickNote,
+    key: number,
+    baseOctave: number
+): string {
+    const scale = getMajorScale(key);
+    const noteIndex = scale[note.degree - 1];
+    const actualOctave = baseOctave + (note.octave || 0);
+    return `${getNoteName(noteIndex!)}${actualOctave}`;
+}
+
+export function playLickNotes(
+    Piano: Sampler,
+    notes: LickNote[],
+    key: number,
+    baseOctave: number,
+    speed: number
+): void {
+    const time = now();
+
+    const groupedByTiming: Map<number, LickNote[]> = new Map();
+    notes.forEach((note) => {
+        const existing = groupedByTiming.get(note.timing) || [];
+        existing.push(note);
+        groupedByTiming.set(note.timing, existing);
+    });
+
+    groupedByTiming.forEach((notesAtTime, timing) => {
+        const noteNames = notesAtTime.map((n) =>
+            lickNoteToNoteName(n, key, baseOctave)
+        );
+        const duration = notesAtTime[0]!.duration / speed;
+        const startTime = time + timing / speed;
+
+        if (noteNames.length === 1) {
+            Piano.triggerAttackRelease(noteNames[0]!, duration, startTime);
+        } else {
+            Piano.triggerAttackRelease(noteNames, duration, startTime);
+        }
+    });
+}
+
+export function playLickChords(
+    Piano: Sampler,
+    chords: ChordContext[],
+    key: number,
+    octave: number,
+    speed: number
+): void {
+    const scale = getMajorScale(key);
+    const time = now();
+
+    chords.forEach((chordCtx) => {
+        const root = scale[chordCtx.degree - 1]!;
+        const chord = makeChord(root, octave, chordCtx.quality);
+        const duration = chordCtx.duration / speed;
+        const startTime = time + chordCtx.timing / speed;
+
+        Piano.triggerAttackRelease(chord, duration, startTime);
+    });
+}
+
+export function playLick(
+    Piano: Sampler,
+    lick: Lick,
+    key: number,
+    baseOctave: number = 4,
+    playChords: boolean = true,
+    speed: number = 1.0
+): void {
+    if (playChords && lick.chords.length > 0) {
+        playLickChords(Piano, lick.chords, key, baseOctave - 1, speed);
+    }
+
+    playLickNotes(Piano, lick.notes, key, baseOctave, speed);
 }
