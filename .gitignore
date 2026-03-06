@@ -43,3 +43,10 @@ yarn-error.log*
 public/sw.*
 public/workbox*
 package-lock.json
+
+# alphaTab assets (copied from node_modules at install time)
+public/font/
+public/soundfont/
+
+# generated lick index
+public/data/licks/index.json

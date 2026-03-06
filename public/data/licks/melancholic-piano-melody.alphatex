@@ -1,0 +1,26 @@
+---
+id: melancholic-piano-melody
+title: Melancholic Piano Melody
+tags: [Pop]
+tempo: 120
+key: C major
+---
+\title "Melancholic Piano Melody"
+\tempo 120
+\ts 4 4
+
+\track "Melody"
+  \staff {score}
+  \tuning piano
+  \instrument "Acoustic Grand Piano"
+  :8 B4 C5 G4 B4 C5 G4 B4 C5 |
+  B4 C5 G4 B4 C5 G4 B4 C5 |
+  B4 C5 G4 B4 C5 G4 B4 C5 |
+  B4 C5 G4 B4 C5 G4 B4 C5
+
+\track "Chords"
+  \staff {score}
+  \tuning piano
+  \clef F4
+  \instrument "Acoustic Grand Piano"
+  (A2 C3 E3).1 | (F2 A2 C3).1 | (C2 E2 G2).1 | (G2 B2 D3).1

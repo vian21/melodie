@@ -5,6 +5,8 @@
 await import("./src/env.mjs");
 import nextPWA from "next-pwa";
 
+const { AlphaTabWebPackPlugin } = await import("@coderline/alphatab-webpack");
+
 const withPWA = nextPWA({
     dest: "public",
     reloadOnOnline: true,
@@ -18,6 +20,12 @@ const config = withPWA({
     basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
     eslint: {
         ignoreDuringBuilds: false,
+    },
+    webpack: (config, { isServer }) => {
+        if (!isServer) {
+            config.plugins.push(new AlphaTabWebPackPlugin());
+        }
+        return config;
     },
 });
 

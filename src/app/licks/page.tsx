@@ -1,30 +1,59 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import usePiano from "~/util/Piano";
-import useLickStorage from "../../util/LickStorage";
-import { LickFilter as LickFilterType } from "../../util/library";
+import { LickIndexEntry, LickFilter } from "../../types/lickTypes";
 import { LickList } from "./components/LickList";
 import { LickFilterComponent } from "./components/LickFilter";
+import { env } from "~/env.mjs";
 
 export default function LicksDB() {
-    const storage = useLickStorage();
-    const piano = usePiano();
-    const [filter, setFilter] = useState<LickFilterType>({});
-    const [filteredLicks, setFilteredLicks] = useState<any[]>([]);
-    const [availableTags, setAvailableTags] = useState<string[]>([]);
+    const [licks, setLicks] = useState<LickIndexEntry[]>([]);
+    const [filter, setFilter] = useState<LickFilter>({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!storage) return;
+        const basePath = env.NEXT_PUBLIC_BASEPATH?.trim() || "";
+        fetch(`${basePath}/data/licks/index.json`)
+            .then((res) => res.json())
+            .then((data: LickIndexEntry[]) => {
+                setLicks(data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Failed to load lick index:", err);
+                setLoading(false);
+            });
+    }, []);
 
-        const tags = storage.getAllTags();
-        setAvailableTags(tags);
+    const filteredLicks = licks.filter((lick) => {
+        if (filter.tags && filter.tags.length > 0) {
+            const hasTag = filter.tags.some((tag) => lick.tags.includes(tag));
+            if (!hasTag) return false;
+        }
 
-        const licks = storage.filterLicks(filter);
-        setFilteredLicks(licks);
-    }, [storage, filter]);
+        if (filter.key && lick.key !== filter.key) {
+            return false;
+        }
 
-    if (!storage) {
+        if (filter.searchTerm) {
+            const term = filter.searchTerm.toLowerCase();
+            const inTitle = lick.title.toLowerCase().includes(term);
+            const inTags = lick.tags.some((t) =>
+                t.toLowerCase().includes(term)
+            );
+            if (!inTitle && !inTags) return false;
+        }
+
+        return true;
+    });
+
+    const availableTags = Array.from(
+        new Set(licks.flatMap((l) => l.tags))
+    ).sort();
+
+    const availableKeys = Array.from(new Set(licks.map((l) => l.key))).sort();
+
+    if (loading) {
         return (
             <div className="flex flex-col">
                 <h1 className="m-auto text-3xl">Loading licks...</h1>
@@ -40,14 +69,10 @@ export default function LicksDB() {
                 filter={filter}
                 onFilterChange={setFilter}
                 availableTags={availableTags}
+                availableKeys={availableKeys}
             />
 
-            <div className="m-auto my-4 text-xl">
-                Showing {filteredLicks.length} lick
-                {filteredLicks.length !== 1 ? "s" : ""}
-            </div>
-
-            <LickList licks={filteredLicks} piano={piano} />
+            <LickList licks={filteredLicks} />
         </div>
     );
 }

@@ -1,17 +1,19 @@
 "use client";
 
-import { LickFilter, KeyType } from "../../../util/library";
+import { LickFilter } from "../../../types/lickTypes";
 
 interface Props {
     filter: LickFilter;
     onFilterChange: (filter: LickFilter) => void;
     availableTags: string[];
+    availableKeys: string[];
 }
 
 export function LickFilterComponent({
     filter,
     onFilterChange,
     availableTags,
+    availableKeys,
 }: Props) {
     const handleTagToggle = (tag: string) => {
         const currentTags = filter.tags || [];
@@ -25,8 +27,8 @@ export function LickFilterComponent({
         onFilterChange({ ...filter, searchTerm });
     };
 
-    const handleKeyChange = (inKey: KeyType | undefined) => {
-        onFilterChange({ ...filter, inKey });
+    const handleKeyChange = (key: string | undefined) => {
+        onFilterChange({ ...filter, key });
     };
 
     const clearFilters = () => {
@@ -36,7 +38,7 @@ export function LickFilterComponent({
     const hasActiveFilters =
         (filter.tags && filter.tags.length > 0) ||
         filter.searchTerm ||
-        filter.inKey !== undefined;
+        filter.key !== undefined;
 
     return (
         <div className="m-auto flex w-full flex-col p-3">
@@ -68,64 +70,19 @@ export function LickFilterComponent({
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => handleKeyChange(undefined)}
-                        className={`p-2 text-white ${
-                            filter.inKey === undefined
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
+                        className={`p-2 text-white ${filter.key === undefined ? "bg-blue-400" : "bg-blue-300"}`}
                     >
                         All
                     </button>
-                    <button
-                        onClick={() => handleKeyChange(KeyType.MAJOR)}
-                        className={`p-2 text-white ${
-                            filter.inKey === KeyType.MAJOR
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
-                    >
-                        Major
-                    </button>
-                    <button
-                        onClick={() => handleKeyChange(KeyType.MINOR)}
-                        className={`p-2 text-white ${
-                            filter.inKey === KeyType.MINOR
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
-                    >
-                        Minor
-                    </button>
-                    <button
-                        onClick={() => handleKeyChange(KeyType.HARMONIC_MINOR)}
-                        className={`p-2 text-white ${
-                            filter.inKey === KeyType.HARMONIC_MINOR
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
-                    >
-                        Harmonic Minor
-                    </button>
-                    <button
-                        onClick={() => handleKeyChange(KeyType.MELODIC_MINOR)}
-                        className={`p-2 text-white ${
-                            filter.inKey === KeyType.MELODIC_MINOR
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
-                    >
-                        Melodic Minor
-                    </button>
-                    <button
-                        onClick={() => handleKeyChange(KeyType.PHRYGIAN)}
-                        className={`p-2 text-white ${
-                            filter.inKey === KeyType.PHRYGIAN
-                                ? "bg-blue-400"
-                                : "bg-blue-300"
-                        }`}
-                    >
-                        Phrygian
-                    </button>
+                    {availableKeys.map((key) => (
+                        <button
+                            key={key}
+                            onClick={() => handleKeyChange(key)}
+                            className={`p-2 text-white ${filter.key === key ? "bg-blue-400" : "bg-blue-300"}`}
+                        >
+                            {key}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -136,11 +93,7 @@ export function LickFilterComponent({
                         <button
                             key={tag}
                             onClick={() => handleTagToggle(tag)}
-                            className={`p-2 text-white ${
-                                filter.tags?.includes(tag)
-                                    ? "bg-blue-400"
-                                    : "bg-blue-300"
-                            }`}
+                            className={`p-2 text-white ${filter.tags?.includes(tag) ? "bg-blue-400" : "bg-blue-300"}`}
                         >
                             {tag}
                         </button>
