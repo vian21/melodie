@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Lick, LickFilter } from "./library";
 
+import { env } from "~/env.mjs";
+
 export class LickStorage {
     private licks: Lick[] = [];
     private loaded: boolean = false;
@@ -11,7 +13,9 @@ export class LickStorage {
         if (this.loaded) return;
 
         try {
-            const response = await fetch("/data/licks.json");
+            const response = await fetch(
+                `${env.NEXT_PUBLIC_BASEPATH}/data/licks.json`
+            );
             const jsonLicks = await response.json();
             this.licks = jsonLicks as Lick[];
 
