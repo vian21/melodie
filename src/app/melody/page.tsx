@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import Logger from "~/util/Logger";
 import usePiano from "~/util/Piano";
-import useStorage from "~/util/Storage";
 
 import {
     Training,
@@ -35,7 +34,6 @@ export default function MelodyRandom() {
     };
 
     const piano = usePiano();
-    const storage = useStorage();
 
     const newMelody = useCallback(() => {
         // Set states
@@ -171,22 +169,15 @@ export default function MelodyRandom() {
 
                 <button
                     onClick={() => {
-                        if (storage == null) {
-                            Logger.warn("Storage undefined!");
-                            return;
-                        }
-
                         correctGuess(
                             melodyDegrees,
                             pin,
                             setCorrection,
-                            storage,
                             Training.MELODY,
                             {
                                 responseTime: Date.now() - startTime,
                                 speed,
                                 octave,
-                                startTime,
                             }
                         );
                     }}

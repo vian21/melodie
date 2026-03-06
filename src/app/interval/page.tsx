@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import usePiano from "~/util/Piano";
-import useStorage from "~/util/Storage";
 import {
     Training,
     correctGuess,
@@ -33,22 +32,8 @@ export default function MelodyRandom() {
     };
 
     const piano = usePiano();
-    const storage = useStorage();
 
     const [melody, setMelody] = useState(new Array(numberOfNotes));
-
-    // const newMelody = useCallback(() => {
-    //     console.log("new melody");
-
-    //     const melodyDegrees = generateRandomIntervals(numberOfNotes);
-
-    //     //set states
-    //     setMelodyDegrees(melodyDegrees);
-    //     setPin(new Array(numberOfNotes));
-
-    //     //clear correction
-    //     setCorrection(new Array(numberOfNotes));
-    // }, [numberOfNotes]);
 
     const newMelody = useCallback(() => {
         const melodyDegrees = generateRandomIntervals(numberOfNotes);
@@ -167,19 +152,15 @@ export default function MelodyRandom() {
                 </center>
                 <button
                     onClick={() => {
-                        if (storage == null) return;
-
                         correctGuess(
                             melodyDegrees,
                             pin,
                             setCorrection,
-                            storage,
                             Training.INTERVAL,
                             {
                                 responseTime: Date.now() - startTime,
                                 speed,
                                 octave,
-                                startTime,
                             }
                         );
                     }}

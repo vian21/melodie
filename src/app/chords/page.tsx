@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import PinInput from "~/components/PinInput";
 import usePiano from "~/util/Piano";
-import useStorage from "~/util/Storage";
 import {
     Training,
     correctGuess,
@@ -34,7 +33,6 @@ export default function ChordsHome() {
     };
 
     const piano = usePiano();
-    const storage = useStorage();
 
     useEffect(() => {
         const k_rand = generateRandomKey();
@@ -148,19 +146,15 @@ export default function ChordsHome() {
                 </center>
                 <button
                     onClick={() => {
-                        if (storage == null) return;
-
                         correctGuess(
                             chordProgression,
                             pin,
                             setCorrection,
-                            storage,
                             Training.CHORD_PROGRESSION,
                             {
                                 responseTime: Date.now() - startTime,
                                 speed,
                                 octave,
-                                startTime,
                             }
                         );
                     }}

@@ -1,7 +1,7 @@
 import Logger from "./Logger";
 
 import { Sampler, now, Transport, Part } from "tone";
-import { Storage } from "./Storage";
+import { db } from "./db";
 
 // currently running sequence / notes. Theses can be stopped and started together
 let __currentParts: { notes?: Part; chords?: Part } = {};
@@ -227,55 +227,43 @@ export function getMelodyNotesNames(
 }
 
 /**
- * Correct guess of degrees of melody/chord progression being played and save them using the useState setter
- * @param degrees - correct notes' degrees
- * @param pin - user guess
- * @param training - type of training e.g INTERVAL, CHORD_PROGRESSION, MELODY
+ * Evaluates the user's guess against the correct degrees, updates the UI
+ * correction state, and persists the attempt to IndexedDB.
+ *
+ * @param degrees - The correct scale degrees for the exercise.
+ * @param pin - The user's guessed degrees.
+ * @param setCorrection - React state setter for per-note visual feedback (1 = correct, 0 = incorrect).
+ * @param training - Which training mode this attempt belongs to.
+ * @param stats - Timing and settings metadata for the attempt.
  */
 export function correctGuess(
     degrees: number[],
     pin: number[],
     setCorrection: (arg0: number[]) => void,
-    storage: Storage,
     training: Training,
-    stats?: ATTEMPT_STATS
+    stats: ATTEMPT_STATS
 ) {
     Logger.log(degrees, pin);
 
-    const newCorrection: number[] = [];
-    let allCorrect: 0 | 1 = 1;
+    const results: number[] = [];
 
     for (let i = 0; i < degrees.length; i++) {
-        const isCorrect = pin[i] === degrees[i] ? 1 : 0;
-
-        if (isCorrect == 0) allCorrect = 0;
-
-        newCorrection[i] = isCorrect;
-
-        //TODO: bring back analytics
-        void allCorrect;
-        void storage;
-        void training;
-        // storage.increment(training, degrees[i]!, isCorrect);
+        results[i] = pin[i] === degrees[i] ? 1 : 0;
     }
 
-    setCorrection(newCorrection);
+    setCorrection(results);
 
-    //overall tries increment
-    storage.increment(training, 0, allCorrect);
-
-    if (stats) {
-        storage.saveAttempt(training, {
-            timestamp: Date.now(),
-            responseTime: Date.now() - stats.startTime,
-            speed: stats.speed,
-            octave: stats.octave,
-            length: degrees.length,
-            degrees,
-            guesses: pin,
-            results: newCorrection,
-        });
-    }
+    void db.attempts.add({
+        training,
+        timestamp: Date.now(),
+        responseTime: stats.responseTime,
+        speed: stats.speed,
+        octave: stats.octave,
+        length: degrees.length,
+        degrees,
+        guesses: pin,
+        results,
+    });
 }
 
 export enum ChordQuality {

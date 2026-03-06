@@ -10,7 +10,6 @@ import PinInput from "~/components/PinInput";
 import * as Tone from "tone";
 import Logger from "~/util/Logger";
 import usePiano from "~/util/Piano";
-import useStorage from "~/util/Storage";
 import { notes } from "~/util/library";
 
 import { playChordProgression } from "~/util/library";
@@ -34,7 +33,6 @@ export default function BackingTrack() {
     };
 
     const piano = usePiano();
-    const _storage = useStorage();
 
     async function handleClick(piano: Sampler | null) {
         if (piano === null) return;
