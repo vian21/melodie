@@ -44,14 +44,9 @@ export default function MelodyRandom() {
         // Clear correction
         setPin(new Array(numberOfNotes));
         setCorrection(new Array(numberOfNotes));
-    }, [numberOfNotes]);
 
-    // const newMelody = () => {
-    //     setMelodyDegrees(generateRandomMelody(numberOfNotes));
-    //     setPin(new Array(numberOfNotes));
-    //     setCorrection(new Array(numberOfNotes));
-    //     setStartTime(Date.now());
-    // };
+        setStartTime(Date.now());
+    }, [numberOfNotes]);
 
     useEffect(() => {
         const k_rand = generateRandomKey();

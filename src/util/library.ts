@@ -3,33 +3,8 @@ import Logger from "./Logger";
 import { Sampler, now, Transport, Part } from "tone";
 import { Storage } from "./Storage";
 
+// currently running sequence / notes. Theses can be stopped and started together
 let __currentParts: { notes?: Part; chords?: Part } = {};
-
-export function stopAllPlayback(Piano?: Sampler) {
-    try {
-        Transport.stop();
-        Transport.cancel(0);
-    } catch {}
-    if (__currentParts.notes) {
-        try {
-            __currentParts.notes.stop();
-            __currentParts.notes.dispose();
-        } catch {}
-        __currentParts.notes = undefined;
-    }
-    if (__currentParts.chords) {
-        try {
-            __currentParts.chords.stop();
-            __currentParts.chords.dispose();
-        } catch {}
-        __currentParts.chords = undefined;
-    }
-    if (Piano) {
-        try {
-            Piano.releaseAll();
-        } catch {}
-    }
-}
 
 export const notes = [
     "C",
@@ -50,6 +25,12 @@ export enum Training {
     CHORD_PROGRESSION = "CHORD_PROGRESSION",
     MELODY = "MELODY",
     INTERVAL = "INTERVAL",
+}
+
+export interface ATTEMPT_STATS {
+    responseTime: number;
+    speed: number;
+    octave: number;
 }
 
 export const popularProgressions = [
@@ -228,7 +209,7 @@ export function getMinorScale(key: number) {
 
 /**
  *
- * @param index index of a note (0-11)
+ * @param index - index of a note (0-11)
  * @returns name of the note using American notation (C, C#, D, D#, E, F, F#, G, G#, A, A#, B)
  */
 export function getNoteName(index: number) {
@@ -247,6 +228,9 @@ export function getMelodyNotesNames(
 
 /**
  * Correct guess of degrees of melody/chord progression being played and save them using the useState setter
+ * @param degrees - correct notes' degrees
+ * @param pin - user guess
+ * @param training - type of training e.g INTERVAL, CHORD_PROGRESSION, MELODY
  */
 export function correctGuess(
     degrees: number[],
@@ -254,12 +238,7 @@ export function correctGuess(
     setCorrection: (arg0: number[]) => void,
     storage: Storage,
     training: Training,
-    metadata?: {
-        responseTime: number;
-        speed: number;
-        octave: number;
-        startTime: number;
-    }
+    stats?: ATTEMPT_STATS
 ) {
     Logger.log(degrees, pin);
 
@@ -285,12 +264,12 @@ export function correctGuess(
     //overall tries increment
     storage.increment(training, 0, allCorrect);
 
-    if (metadata) {
+    if (stats) {
         storage.saveAttempt(training, {
             timestamp: Date.now(),
-            responseTime: Date.now() - metadata.startTime,
-            speed: metadata.speed,
-            octave: metadata.octave,
+            responseTime: Date.now() - stats.startTime,
+            speed: stats.speed,
+            octave: stats.octave,
             length: degrees.length,
             degrees,
             guesses: pin,
@@ -557,4 +536,30 @@ export function playLick(
     try {
         Transport.start();
     } catch {}
+}
+
+export function stopAllPlayback(Piano?: Sampler) {
+    try {
+        Transport.stop();
+        Transport.cancel(0);
+    } catch {}
+    if (__currentParts.notes) {
+        try {
+            __currentParts.notes.stop();
+            __currentParts.notes.dispose();
+        } catch {}
+        __currentParts.notes = undefined;
+    }
+    if (__currentParts.chords) {
+        try {
+            __currentParts.chords.stop();
+            __currentParts.chords.dispose();
+        } catch {}
+        __currentParts.chords = undefined;
+    }
+    if (Piano) {
+        try {
+            Piano.releaseAll();
+        } catch {}
+    }
 }

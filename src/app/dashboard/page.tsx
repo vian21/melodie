@@ -12,7 +12,7 @@ import {
     LineElement,
 } from "chart.js";
 
-import { Pie, Line } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 import { Training } from "~/util/library";
 import { useState, useMemo } from "react";
 

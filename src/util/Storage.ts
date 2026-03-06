@@ -55,7 +55,7 @@ export class Storage {
             localStorage.getItem(training) ?? "{}"
         ) as StorageObject;
 
-        db.date = data;
+        db[date] = data;
         localStorage.setItem(training, JSON.stringify(db));
     }
 
