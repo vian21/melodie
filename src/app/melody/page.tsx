@@ -10,7 +10,8 @@ import {
     correctGuess,
     generateRandomKey,
     generateRandomMelody,
-    playMelody,
+    playDrone,
+    playMelodyWithDrone,
 } from "~/util/library";
 
 export default function MelodyRandom() {
@@ -122,7 +123,7 @@ export default function MelodyRandom() {
                 onClick={() => {
                     if (piano === null) return;
 
-                    playMelody(
+                    playMelodyWithDrone(
                         piano,
                         melodyDegrees,
                         key.current,
@@ -134,13 +135,13 @@ export default function MelodyRandom() {
                 Play
             </button>
 
-            {/* Play tonic */}
+            {/* Play tonic - octave drone for key reference */}
             <button
                 className="m-auto mb-4 w-4/5 bg-blue-300 p-3 text-white"
                 onClick={() => {
                     if (piano === null) return;
 
-                    playMelody(piano, [1], key.current, octave, speed / 4);
+                    playDrone(piano, key.current, octave - 2, speed / 4);
                 }}
             >
                 Play Tonic (1)

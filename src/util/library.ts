@@ -27,6 +27,9 @@ export enum Training {
     INTERVAL = "INTERVAL",
 }
 
+/** Lead-in time in seconds before melody notes start over the drone. */
+const DRONE_LEAD_IN = 2;
+
 export interface ATTEMPT_STATS {
     responseTime: number;
     speed: number;
@@ -386,7 +389,6 @@ export function playChordProgression(
 /**
  * @param melody - melody using number system
  * @param interval - time between each note i.e speed
- *
  */
 export function playMelody(
     Piano: Sampler,
@@ -406,6 +408,74 @@ export function playMelody(
             `${getNoteName(scale[note - 1]!)}${octave}`,
             interval,
             time + interval * i
+        );
+    });
+}
+
+/**
+ * Plays a sustained octave drone (root + root one octave up) with a soft attack.
+ *
+ * @param Piano - Tone.js Sampler instance.
+ * @param key - Index of the tonal key (0-11).
+ * @param octave - Base octave for the drone.
+ * @param duration - How long to sustain the drone (seconds).
+ * @returns The Tone.js time at which the drone was triggered, for scheduling coordination.
+ */
+export function playDrone(
+    Piano: Sampler,
+    key: number,
+    octave: number,
+    duration: number
+): number {
+    const scale = getMajorScale(key);
+    const rootName = getNoteName(scale[0]!)!;
+    const VELOCITY = 0.5;
+    const time = now();
+
+    const low = `${rootName}${octave}`;
+    const high = `${rootName}${octave + 1}`;
+
+    Logger.log("Drone:", low, high);
+    Piano.triggerAttackRelease(low, duration, time, VELOCITY);
+    Piano.triggerAttackRelease(high, duration, time, VELOCITY);
+
+    return time;
+}
+
+/**
+ * Plays a melody with a sustained octave drone underneath.
+ * The drone starts first, then the melody notes begin after a short lead-in
+ * so the listener can lock into the key before hearing the exercise.
+ *
+ * @param Piano - Tone.js Sampler instance.
+ * @param melody - Scale degrees to play (1-7).
+ * @param key - Index of the tonal key (0-11).
+ * @param octave - Octave to play the melody in.
+ * @param interval - Time in seconds between each note.
+ */
+export function playMelodyWithDrone(
+    Piano: Sampler,
+    melody: number[],
+    key: number,
+    octave: number,
+    interval: number
+) {
+    const scale = getMajorScale(key);
+    const melodyDuration = (melody.length + 0.5) * interval;
+    const droneDuration = DRONE_LEAD_IN + melodyDuration;
+
+    // Drone starts immediately, 2 octaves below the melody
+    const droneStart = playDrone(Piano, key, octave - 2, droneDuration);
+
+    // Melody notes start after the lead-in
+    const melodyStart = droneStart + DRONE_LEAD_IN;
+    melody.map((note, i) => {
+        const noteName = `${getNoteName(scale[note - 1]!)}${octave}`;
+        Logger.log(noteName);
+        Piano.triggerAttackRelease(
+            noteName,
+            interval,
+            melodyStart + interval * i
         );
     });
 }
