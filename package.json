@@ -10,7 +10,8 @@
     "predev": "npm run generate-lick-index",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "node scripts/server.mjs",
+    "preview": "npm run build && npm run start"
   },
   "dependencies": {
     "@coderline/alphatab": "^1.8.1",
