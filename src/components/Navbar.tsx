@@ -118,7 +118,7 @@ export default function NavBar() {
 
             {/* Nav bar */}
             <nav>
-                <ul className="m-0 flex list-none items-center gap-2 p-0">
+                <ul className="m-0 flex list-none items-center gap-4 p-0">
                     {/* Nav links */}
                     <NavLinks hidden={!showNav} />
 
