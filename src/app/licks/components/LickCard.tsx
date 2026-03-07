@@ -239,7 +239,7 @@ export function LickCard({ lick }: Props) {
             {/* Header - always visible */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-100"
+                className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-800"
             >
                 <div>
                     <h3 className="text-2xl">{lick.title}</h3>

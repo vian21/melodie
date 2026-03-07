@@ -179,7 +179,7 @@ export default function NavBar() {
                         false
                     )}
 
-                    <ul className="menu absolute right-2 top-10  z-10 my-auto flex flex-col gap-y-2 divide-y-2 divide-gray-100 rounded-md bg-slate-700 p-3 drop-shadow-2xl empty:hidden">
+                    <ul className="menu absolute right-2 top-10 z-10 my-auto flex flex-col gap-y-2 divide-y-2 divide-gray-300 rounded-md bg-white p-3 text-black drop-shadow-2xl dark:divide-gray-600 dark:bg-slate-700 dark:text-white empty:hidden">
                         <NavLinks hidden={!showMenu} />
                     </ul>
                 </ul>

@@ -57,7 +57,7 @@ export default function Dashboard() {
         <div className="p-4">
             <div className="flex flex-wrap items-center justify-center gap-4">
                 <select
-                    className="text-bold p-3 text-black"
+                    className="border border-gray-300 bg-white p-3 text-black dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     value={view}
                     onChange={(e) => setView(e.target.value)}
                 >
@@ -70,7 +70,7 @@ export default function Dashboard() {
                 </select>
 
                 <select
-                    className="text-bold p-3 text-black"
+                    className="border border-gray-300 bg-white p-3 text-black dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     value={timeRange}
                     onChange={(e) => setTimeRange(e.target.value as TimeRange)}
                 >
@@ -256,9 +256,9 @@ function StatsCard({
     const chartData = buildChartData(attempts, timeRange);
 
     return (
-        <div className="rounded-lg border border-gray-700 bg-gray-800 p-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             <h2 className="text-center text-xl font-bold">{title}</h2>
-            <div className="my-3 text-center text-sm text-gray-400">
+            <div className="my-3 text-center text-sm text-gray-600 dark:text-gray-400">
                 <p>Total Attempts: {total}</p>
                 <p>Accuracy: {accuracy.toFixed(1)}%</p>
             </div>
@@ -315,7 +315,9 @@ function StatsCard({
                     />
                 </div>
             ) : (
-                <div className="text-center text-gray-500">No data yet</div>
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                    No data yet
+                </div>
             )}
         </div>
     );
