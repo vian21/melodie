@@ -9,7 +9,7 @@
     "build": "next build",
     "predev": "npm run generate-lick-index",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "npx tsc --noEmit",
     "start": "node scripts/server.mjs",
     "preview": "npm run build && npm run start"
   },
