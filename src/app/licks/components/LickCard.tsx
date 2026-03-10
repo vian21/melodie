@@ -13,6 +13,9 @@ interface TrackInfo {
     name: string;
 }
 
+/** Volume percentage for AlphaTab */
+const MASTER_VOLUME = 0.3;
+
 /**
  * Strip YAML frontmatter from an alphatex file, returning only the body.
  */
@@ -136,6 +139,7 @@ export function LickCard({ lick }: Props) {
 
                 const api = new alphaTab.AlphaTabApi(mainEl, settings as any);
                 apiRef.current = api;
+                api.masterVolume = MASTER_VOLUME;
 
                 api.playerReady.on(() => {
                     if (!cancelled) {

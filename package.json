@@ -11,7 +11,8 @@
     "dev": "next dev",
     "lint": "npx tsc --noEmit",
     "start": "node scripts/server.mjs",
-    "preview": "npm run build && npm run start"
+    "preview": "npm run build && npm run start",
+    "format": "npx prettier -w ."
   },
   "dependencies": {
     "@coderline/alphatab": "^1.8.1",
@@ -36,6 +37,7 @@
     "autoprefixer": "^10.4.14",
     "eslint-config-next": "^14.0.0",
     "postcss": "^8.4.27",
+    "prettier": "3.8.1",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.1.6"
   },
