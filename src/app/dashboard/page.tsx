@@ -12,7 +12,7 @@ import {
     Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { Training } from "~/util/library";
+import { CHORD_QUALITIES, Training } from "~/util/library";
 import { useState, useEffect, useCallback } from "react";
 import {
     type Attempt,
@@ -47,6 +47,7 @@ const TRAINING_LABELS: Record<Training, string> = {
     [Training.CHORD_PROGRESSION]: "Chord Progression",
     [Training.MELODY]: "Melody",
     [Training.INTERVAL]: "Intervals",
+    [Training.CHORD_QUALITY]: "Chord Quality",
 };
 
 export default function Dashboard() {
@@ -108,19 +109,24 @@ function OverallView({ timeRange }: { timeRange: TimeRange }) {
         [Training.CHORD_PROGRESSION]: [],
         [Training.MELODY]: [],
         [Training.INTERVAL]: [],
+        [Training.CHORD_QUALITY]: [],
     });
 
     useEffect(() => {
         async function load() {
-            const [chords, melody, intervals] = await Promise.all([
-                getAttempts(Training.CHORD_PROGRESSION, timeRange),
-                getAttempts(Training.MELODY, timeRange),
-                getAttempts(Training.INTERVAL, timeRange),
-            ]);
+            const [chords, melody, intervals, chordQuality] = await Promise.all(
+                [
+                    getAttempts(Training.CHORD_PROGRESSION, timeRange),
+                    getAttempts(Training.MELODY, timeRange),
+                    getAttempts(Training.INTERVAL, timeRange),
+                    getAttempts(Training.CHORD_QUALITY, timeRange),
+                ]
+            );
             setData({
                 [Training.CHORD_PROGRESSION]: chords,
                 [Training.MELODY]: melody,
                 [Training.INTERVAL]: intervals,
+                [Training.CHORD_QUALITY]: chordQuality,
             });
         }
         void load();
@@ -197,6 +203,12 @@ function TrainingView({
 
     const overallAccuracy = computeAccuracy(attempts);
 
+    const breakdownLabels =
+        training === Training.CHORD_QUALITY
+            ? [...CHORD_QUALITIES]
+            : DEGREE_NAMES;
+    const breakdownSuffix = training === Training.CHORD_QUALITY ? "" : "Degree";
+
     return (
         <div className="my-3">
             <h1 className="mb-6 text-center text-3xl font-bold">
@@ -210,14 +222,14 @@ function TrainingView({
                     total={attempts.length}
                     timeRange={timeRange}
                 />
-                {DEGREE_NAMES.map((name, i) => {
+                {breakdownLabels.map((name, i) => {
                     const degree = i + 1;
                     const degreeAttempts = getDegreeAttempts(degree);
                     const acc = computeAccuracy(degreeAttempts);
                     return (
                         <StatsCard
                             key={degree}
-                            title={`${name} Degree`}
+                            title={`${name} ${breakdownSuffix}`}
                             attempts={degreeAttempts}
                             accuracy={acc}
                             total={degreeAttempts.length}

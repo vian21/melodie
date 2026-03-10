@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { verificationColor } from "~/util/library";
 
 interface PinInputGridProps {
     pin: Array<number | undefined>;
@@ -101,15 +102,4 @@ const PinInput: React.FC<PinInputGridProps> = ({
         </>
     );
 };
-
-function verificationColor(state: number | undefined) {
-    switch (state) {
-        case 0:
-            return "border-red-500";
-        case 1:
-            return "border-green-500";
-        default:
-            return "border-black";
-    }
-}
 export default PinInput;

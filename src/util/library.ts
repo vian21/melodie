@@ -22,6 +22,7 @@ export enum Training {
     CHORD_PROGRESSION = "CHORD_PROGRESSION",
     MELODY = "MELODY",
     INTERVAL = "INTERVAL",
+    CHORD_QUALITY = "CHORD_QUALITY",
 }
 
 /** Lead-in time in seconds before melody notes start over the drone. */
@@ -266,13 +267,89 @@ export function correctGuess(
     });
 }
 
+export function verificationColor(state: number | undefined) {
+    switch (state) {
+        case 0:
+            return "border-red-500";
+        case 1:
+            return "border-green-500";
+        default:
+            return "border-black";
+    }
+}
+
 export enum ChordQuality {
-    MINOR,
-    MAJOR,
-    DIMINISHED,
-    DOM7,
-    MAJ7,
-    MIN7,
+    // Easy
+    MAJOR = "Major",
+    MINOR = "Minor",
+    SUS2 = "Sus2",
+    SUS4 = "Sus4",
+
+    // Intermediate
+    DIMINISHED = "Diminished",
+    AUGMENTED = "Augmented",
+
+    // Advanced
+    MAJ7 = "Maj7",
+    MIN7 = "Min7",
+    DOM7 = "Dom7",
+    AUGMENTED7 = "Aug7",
+    DIM7 = "Dim7",
+    ALTERED = "Altered",
+}
+
+export const CHORD_QUALITIES: ReadonlyArray<ChordQuality> = Object.values(
+    ChordQuality
+) as ChordQuality[];
+
+export enum ChordQualityLevel {
+    EASY = "Easy",
+    INTERMEDIATE = "Intermediate",
+    ADVANCED = "Advanced",
+}
+
+function getChordFormula(quality: ChordQuality): number[] {
+    switch (quality) {
+        case ChordQuality.MAJOR:
+            return [0, 4, 7];
+        case ChordQuality.MINOR:
+            return [0, 3, 7];
+        case ChordQuality.SUS2:
+            return [0, 2, 7];
+        case ChordQuality.SUS4:
+            return [0, 5, 7];
+        case ChordQuality.DIMINISHED:
+            return [0, 3, 6];
+        case ChordQuality.AUGMENTED:
+            return [0, 4, 8];
+        case ChordQuality.MAJ7:
+            return [0, 4, 7, 11];
+        case ChordQuality.MIN7:
+            return [0, 3, 7, 10];
+        case ChordQuality.DOM7:
+            return [0, 4, 7, 10];
+        case ChordQuality.AUGMENTED7:
+            return [0, 4, 8, 10];
+        case ChordQuality.DIM7:
+            return [0, 3, 6, 9];
+        case ChordQuality.ALTERED:
+            // A common "altered dominant" color: 7(b9,#9). Not exhaustive.
+            return [0, 4, 7, 10, 13, 15];
+    }
+}
+
+export function makeChordByQuality(
+    root: number,
+    octave: number,
+    quality: ChordQuality
+): string[] {
+    const semitones = getChordFormula(quality);
+    return semitones.map((st) => {
+        const absolute = root + st;
+        const note = getNoteName(((absolute % 12) + 12) % 12);
+        const noteOctave = octave + Math.floor(absolute / 12);
+        return `${note}${noteOctave}`;
+    });
 }
 
 export enum KeyType {
