@@ -16,6 +16,22 @@ import {
     verificationColor,
 } from "~/util/library";
 
+type GuessStateMap = Partial<Record<ChordQuality, 0 | 1>>;
+
+/**
+ * Apply a guess to the previous guess-state map.
+ */
+function updateGuessState(
+    /**
+     * Previous guess state map before applying the current guess.
+     */
+    prev: GuessStateMap,
+    guess: ChordQuality,
+    correct: boolean
+): GuessStateMap {
+    return { ...prev, [guess]: correct ? 1 : 0 };
+}
+
 export default function ChordQualityTrainer() {
     const piano = usePiano();
 
@@ -24,37 +40,53 @@ export default function ChordQualityTrainer() {
     );
     const [octave] = useState(3);
 
-    const [root, setRoot] = useState(0);
+    const [root, setRoot] = useState(() => generateRandomKey());
     const [targetQuality, setTargetQuality] = useState<ChordQuality>(
         ChordQuality.MAJOR
     );
+    const [keepSameRoot, setKeepSameRoot] = useState(true);
 
     const [resolved, setResolved] = useState(false);
-    const [states, setStates] = useState<Partial<Record<ChordQuality, 0 | 1>>>(
-        {}
-    );
+    /**
+     * Map of guesses to correctness.
+     * 1 = correct, 0 = incorrect, missing = not guessed yet.
+     */
+    const [states, setStates] = useState<GuessStateMap>({});
     const [startTime, setStartTime] = useState(Date.now());
 
     const pool = useMemo(() => getChordQualitiesForLevel(level), [level]);
 
+    const resetRound = useCallback(
+        /**
+         * Start a new round with a given root and chord quality.
+         */
+        (nextRoot: number, quality: ChordQuality) => {
+            setRoot(nextRoot);
+            setTargetQuality(quality);
+            setResolved(false);
+            setStates({});
+            setStartTime(Date.now());
+        },
+        []
+    );
+
     const nextChord = useCallback(() => {
-        const next = generateRandomChordQuality(level);
-        setRoot(next.root);
-        setTargetQuality(next.quality);
-        setResolved(false);
-        setStates({});
-        setStartTime(Date.now());
-    }, [level]);
+        const quality = pool[Math.floor(Math.random() * pool.length)]!;
+        const nextRoot = keepSameRoot ? root : generateRandomKey();
+        resetRound(nextRoot, quality);
+    }, [keepSameRoot, pool, resetRound, root]);
 
     useEffect(() => {
-        nextChord();
-    }, [level, nextChord]);
+        const quality = pool[Math.floor(Math.random() * pool.length)]!;
+        resetRound(generateRandomKey(), quality);
+    }, [level, pool, resetRound]);
 
     const onGuess = (guess: ChordQuality) => {
         if (resolved) return;
+        if (states[guess] != null) return;
 
         const correct = guess === targetQuality;
-        setStates((prev) => ({ ...prev, [guess]: correct ? 1 : 0 }));
+        setStates((prev) => updateGuessState(prev, guess, correct));
         if (correct) setResolved(true);
 
         const correctId = getChordQualityIdx(targetQuality);
@@ -94,6 +126,16 @@ export default function ChordQualityTrainer() {
                 </select>
             </div>
 
+            <label className="m-auto mt-3 flex w-4/5 items-center gap-3 text-lg">
+                <input
+                    type="checkbox"
+                    className="h-5 w-5"
+                    checked={keepSameRoot}
+                    onChange={(e) => setKeepSameRoot(e.target.checked)}
+                />
+                Keep same root note
+            </label>
+
             <button
                 className="m-auto my-4 w-4/5 bg-blue-300 p-3 text-xl text-white font-bold"
                 onClick={() => {
@@ -114,7 +156,7 @@ export default function ChordQualityTrainer() {
             <div className="m-auto mt-6 grid w-4/5 grid-cols-2 gap-3 sm:grid-cols-3">
                 {pool.map((q) => {
                     const state = states[q];
-                    const disabled = resolved;
+                    const disabled = resolved || state != null;
                     return (
                         <button
                             key={q}
@@ -172,14 +214,4 @@ function playChord(
 ) {
     const chord = makeChordByQuality(root, octave, quality);
     Piano.triggerAttackRelease(chord, durationSeconds, now());
-}
-
-function generateRandomChordQuality(level: ChordQualityLevel): {
-    root: number;
-    quality: ChordQuality;
-} {
-    const root = generateRandomKey();
-    const pool = getChordQualitiesForLevel(level);
-    const quality = pool[Math.floor(Math.random() * pool.length)]!;
-    return { root, quality };
 }
