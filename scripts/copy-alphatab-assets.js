@@ -22,6 +22,19 @@ const copies = [
         dest: path.join(ROOT, "public/soundfont"),
         filter: (f) => f === "sonivox.sf2",
     },
+    // Copy ESM worker/worklet files so they can be served as static assets.
+    // Turbopack cannot resolve the ESM worker entry points that alphaTab
+    // expects, so we serve these from public/ and override
+    // Environment.createWebWorker at runtime.
+    {
+        src: ALPHATAB_DIST,
+        dest: path.join(ROOT, "public/alphatab"),
+        filter: (f) =>
+            f === "alphaTab.mjs" ||
+            f === "alphaTab.core.mjs" ||
+            f === "alphaTab.worker.mjs" ||
+            f === "alphaTab.worklet.mjs",
+    },
 ];
 
 for (const { src, dest, filter } of copies) {

@@ -103,6 +103,30 @@ export function LickCard({ lick }: Props) {
 
                 if (cancelled || !containerRef.current) return;
 
+                // Turbopack mangles import.meta.url so alphaTab's default
+                // worker-creation callback builds blob workers that import
+                // the wrong chunk and never call initializeWorker().
+                // Override createWebWorker and createAudioWorklet to use
+                // the original ESM files served from public/alphatab/.
+                // Blob workers require full URLs for ESM imports.
+                const origin = window.location.origin;
+                const workerUrl = `${origin}${basePath}/alphatab/alphaTab.worker.mjs`;
+                const workletUrl = `${origin}${basePath}/alphatab/alphaTab.worklet.mjs`;
+                (alphaTab as any).Environment.createWebWorker = () => {
+                    const script = `import ${JSON.stringify(workerUrl)};`;
+                    const blob = new Blob([script], {
+                        type: "application/javascript",
+                    });
+                    return new Worker(URL.createObjectURL(blob), {
+                        type: "module",
+                    });
+                };
+                (alphaTab as any).Environment.createAudioWorklet = (
+                    context: AudioContext
+                ) => {
+                    return context.audioWorklet.addModule(workletUrl);
+                };
+
                 // Clear previous content
                 containerRef.current.innerHTML = "";
 
@@ -116,6 +140,9 @@ export function LickCard({ lick }: Props) {
                     core: {
                         tex: true,
                         fontDirectory: `${basePath}/font/`,
+                        useWorkers: true,
+                        engine: "svg",
+                        scriptFile: `${basePath}/alphatab/alphaTab.mjs`,
                     },
                     display: {
                         layoutMode: 1, // Page layout

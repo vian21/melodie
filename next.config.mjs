@@ -3,30 +3,20 @@
  * for Docker builds.
  */
 await import("./src/env.mjs");
-import nextPWA from "next-pwa";
 
-const { AlphaTabWebPackPlugin } = await import("@coderline/alphatab-webpack");
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const withPWA = nextPWA({
-    dest: "public",
-    reloadOnOnline: true,
-    cacheOnFrontEndNav: true,
-    disable: process.env.NODE_ENV === "development" ? true : false,
-});
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const config = withPWA({
+/** @type {import('next').NextConfig} */
+const config = {
     output: "export",
     trailingSlash: true,
     basePath: process.env.NODE_ENV === "production" ? "/melodie" : "",
-    eslint: {
-        ignoreDuringBuilds: false,
+    turbopack: {
+        root: resolve(__dirname),
     },
-    webpack: (config, { isServer }) => {
-        if (!isServer) {
-            config.plugins.push(new AlphaTabWebPackPlugin());
-        }
-        return config;
-    },
-});
+};
 
 export default config;

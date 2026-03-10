@@ -22,6 +22,16 @@ export default function RootLayout({
         }
     }, []);
 
+    // Register the service worker for offline support
+    useEffect(() => {
+        if ("serviceWorker" in navigator) {
+            const basePath = env.NEXT_PUBLIC_BASEPATH?.trim() || "";
+            navigator.serviceWorker
+                .register(`${basePath}/sw.js`)
+                .catch((err) => console.error("SW registration failed:", err));
+        }
+    }, []);
+
     return (
         <html lang="en">
             <head>

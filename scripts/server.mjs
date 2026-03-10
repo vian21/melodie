@@ -11,12 +11,18 @@ const outDir = resolve("out");
 /** @type {Record<string, string>} */
 const contentTypes = {
     ".css": "text/css; charset=utf-8",
+    ".eot": "application/vnd.ms-fontobject",
     ".html": "text/html; charset=utf-8",
     ".ico": "image/x-icon",
     ".js": "text/javascript; charset=utf-8",
     ".json": "application/json; charset=utf-8",
     ".map": "application/json; charset=utf-8",
+    ".mjs": "text/javascript; charset=utf-8",
+    ".mp3": "audio/mpeg",
+    ".ogg": "audio/ogg",
+    ".otf": "font/otf",
     ".png": "image/png",
+    ".sf2": "application/octet-stream",
     ".svg": "image/svg+xml; charset=utf-8",
     ".txt": "text/plain; charset=utf-8",
     ".ttf": "font/ttf",
