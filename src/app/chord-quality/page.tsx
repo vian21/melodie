@@ -59,7 +59,7 @@ export default function ChordQualityTrainer() {
     const [level, setLevel] = useState<ChordQualityLevel>(
         ChordQualityLevel.EASY
     );
-    const [octave] = useState(3);
+    const [octave, setOctave] = useState(3);
 
     const [root, setRoot] = useState(() => generateRandomKey());
     const [targetQuality, setTargetQuality] = useState<ChordQuality>(
@@ -147,6 +147,21 @@ export default function ChordQualityTrainer() {
                         </option>
                     ))}
                 </select>
+            </div>
+
+            <div className="m-auto mt-3 flex w-4/5 items-center gap-3">
+                <label className="text-xl">Octave:</label>
+                <input
+                    className="flex-1"
+                    type="range"
+                    min="2"
+                    max="5"
+                    value={octave}
+                    onChange={(e) => {
+                        setOctave(Number(e.target.value));
+                    }}
+                />
+                <span className="text-xl">C{octave}</span>
             </div>
 
             <label className="m-auto mt-3 flex w-4/5 items-center gap-3 text-lg">
