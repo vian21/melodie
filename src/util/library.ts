@@ -1,7 +1,8 @@
 import Logger from "./Logger";
 
-import { Sampler, now } from "tone";
+import { Part } from "tone";
 import { db } from "./db";
+import type { PianoSampler } from "./Piano";
 
 export const notes = [
     "C",
@@ -393,15 +394,18 @@ export function makeChord(root: number, octave: number, type: ChordQuality) {
  *
  */
 export function playChordProgression(
-    Piano: Sampler,
+    Piano: PianoSampler,
     progression: number[],
     key: number,
     octave: number,
-    interval: number
+    interval: number,
+    loop = false
 ) {
+    Piano.stopAll();
     const scale = getMajorScale(key);
-
-    const time = now();
+    const events: Array<
+        [number, { notes: string[]; duration: number; velocity?: number }]
+    > = [];
 
     progression
         .filter((note) => note)
@@ -419,9 +423,30 @@ export function playChordProgression(
 
             const chord = makeChord(scale[note - 1]!, octave, quality);
             Logger.log("Playing:", chord);
-
-            Piano.triggerAttackRelease(chord, interval, time + interval * i);
+            events.push([
+                interval * i,
+                {
+                    notes: chord,
+                    duration: interval,
+                },
+            ]);
         });
+
+    const part = new Part((time, value) => {
+        Piano.triggerAttackRelease(
+            value.notes,
+            value.duration,
+            time,
+            value.velocity
+        );
+    }, events);
+
+    const loopDuration = events.reduce((max, [time, value]) => {
+        const duration = value.duration ?? 0;
+        return Math.max(max, time + duration);
+    }, 0);
+
+    Piano.setActivePart(part, loop ? { end: loopDuration } : undefined);
 }
 
 /**
@@ -429,25 +454,38 @@ export function playChordProgression(
  * @param interval - time between each note i.e speed
  */
 export function playMelody(
-    Piano: Sampler,
+    Piano: PianoSampler,
     melody: number[],
     key: number,
     octave: number,
     interval: number
 ) {
+    Piano.stopAll();
     const scale = getMajorScale(key);
-
-    const time = now();
+    const events: Array<
+        [number, { notes: string; duration: number; velocity?: number }]
+    > = [];
 
     melody.map((note, i) => {
         Logger.log(`${getNoteName(scale[note - 1]!)}${octave}`);
-
-        Piano.triggerAttackRelease(
-            `${getNoteName(scale[note - 1]!)}${octave}`,
-            interval,
-            time + interval * i
-        );
+        events.push([
+            interval * i,
+            {
+                notes: `${getNoteName(scale[note - 1]!)}${octave}`,
+                duration: interval,
+            },
+        ]);
     });
+
+    const part = new Part((time, value) => {
+        Piano.triggerAttackRelease(
+            value.notes,
+            value.duration,
+            time,
+            value.velocity
+        );
+    }, events);
+    Piano.setActivePart(part);
 }
 
 /**
@@ -460,24 +498,36 @@ export function playMelody(
  * @returns The Tone.js time at which the drone was triggered, for scheduling coordination.
  */
 export function playDrone(
-    Piano: Sampler,
+    Piano: PianoSampler,
     key: number,
     octave: number,
     duration: number
-): number {
+) {
+    Piano.stopAll();
     const scale = getMajorScale(key);
     const rootName = getNoteName(scale[0]!)!;
     const VELOCITY = 0.5;
-    const time = now();
 
     const low = `${rootName}${octave}`;
     const high = `${rootName}${octave + 1}`;
 
     Logger.log("Drone:", low, high);
-    Piano.triggerAttackRelease(low, duration, time, VELOCITY);
-    Piano.triggerAttackRelease(high, duration, time, VELOCITY);
+    const events: Array<
+        [number, { notes: string; duration: number; velocity?: number }]
+    > = [
+        [0, { notes: low, duration, velocity: VELOCITY }],
+        [0, { notes: high, duration, velocity: VELOCITY }],
+    ];
 
-    return time;
+    const part = new Part((time, value) => {
+        Piano.triggerAttackRelease(
+            value.notes,
+            value.duration,
+            time,
+            value.velocity
+        );
+    }, events);
+    Piano.setActivePart(part);
 }
 
 /**
@@ -492,28 +542,57 @@ export function playDrone(
  * @param interval - Time in seconds between each note.
  */
 export function playMelodyWithDrone(
-    Piano: Sampler,
+    Piano: PianoSampler,
     melody: number[],
     key: number,
     octave: number,
     interval: number
 ) {
+    Piano.stopAll();
     const scale = getMajorScale(key);
     const melodyDuration = (melody.length + 0.5) * interval;
     const droneDuration = DRONE_LEAD_IN + melodyDuration;
 
     // Drone starts immediately, 2 octaves below the melody
-    const droneStart = playDrone(Piano, key, octave - 2, droneDuration);
+    const events: Array<
+        [
+            number,
+            { notes: string | string[]; duration: number; velocity?: number },
+        ]
+    > = [];
+
+    // Drone starts immediately, 2 octaves below the melody
+    const rootName = getNoteName(scale[0]!)!;
+    const low = `${rootName}${octave - 2}`;
+    const high = `${rootName}${octave - 1}`;
+    const VELOCITY = 0.5;
+    events.push([
+        0,
+        { notes: low, duration: droneDuration, velocity: VELOCITY },
+    ]);
+    events.push([
+        0,
+        { notes: high, duration: droneDuration, velocity: VELOCITY },
+    ]);
 
     // Melody notes start after the lead-in
-    const melodyStart = droneStart + DRONE_LEAD_IN;
+    const melodyStart = DRONE_LEAD_IN;
     melody.map((note, i) => {
         const noteName = `${getNoteName(scale[note - 1]!)}${octave}`;
         Logger.log(noteName);
-        Piano.triggerAttackRelease(
-            noteName,
-            interval,
-            melodyStart + interval * i
-        );
+        events.push([
+            melodyStart + interval * i,
+            { notes: noteName, duration: interval },
+        ]);
     });
+
+    const part = new Part((time, value) => {
+        Piano.triggerAttackRelease(
+            value.notes,
+            value.duration,
+            time,
+            value.velocity
+        );
+    }, events);
+    Piano.setActivePart(part);
 }

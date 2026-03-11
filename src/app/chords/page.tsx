@@ -103,7 +103,6 @@ export default function ChordsHome() {
                 onClick={() => {
                     if (piano == null) return;
 
-                    //TODO: stop previously sequence before starting new one
                     playChordProgression(
                         piano,
                         chordProgression,

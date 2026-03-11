@@ -5,14 +5,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Loop, Transport, Sampler } from "tone";
 import PinInput from "~/components/PinInput";
-import * as Tone from "tone";
 import Logger from "~/util/Logger";
-import usePiano from "~/util/Piano";
-import { notes } from "~/util/library";
-
-import { playChordProgression } from "~/util/library";
+import usePiano, { PianoSampler } from "~/util/Piano";
+import { notes, playChordProgression } from "~/util/library";
 
 export default function BackingTrack() {
     const [numberOfNotes, setNumberOfNotes] = useState(4);
@@ -20,9 +16,9 @@ export default function BackingTrack() {
     const key = useRef(0);
     const [speed, setSpeeed] = useState(5);
     const [playing, setPlaying] = useState(false);
-    const [audioContextStarted, setStarted] = useState(false);
-    const [loop, setLoop] = useState<Loop | null>(null);
-    const [pin, setPin] = useState<number[]>(new Array(numberOfNotes));
+    const [pin, setPin] = useState<number[]>(
+        new Array(numberOfNotes).fill(undefined)
+    );
 
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
@@ -34,32 +30,22 @@ export default function BackingTrack() {
 
     const piano = usePiano();
 
-    async function handleClick(piano: Sampler | null) {
+    async function handleClick(piano: PianoSampler | null) {
         if (piano === null) return;
-        setPlaying(!playing);
-
-        if (!audioContextStarted) {
-            await Tone.start();
-            setStarted(true);
+        if (pin.some((v) => !v)) {
+            alert("Please input chord progression!");
+            return;
         }
 
         if (playing) {
-            Logger.log("Stopping loop!");
-            loop!.stop();
-            loop!.dispose();
-            Transport.stop(0);
+            piano.stopAll();
+            setPlaying(false);
             return;
         }
 
         const beatLength = 10 / speed;
-
-        const _loop = new Loop(() => {
-            Logger.log("Starting loop!");
-            playChordProgression(piano, pin, key.current, octave, beatLength);
-        }, beatLength * pin.length).start(0);
-        setLoop(_loop);
-
-        Transport.start();
+        playChordProgression(piano, pin, key.current, octave, beatLength, true);
+        setPlaying(true);
     }
 
     return (
