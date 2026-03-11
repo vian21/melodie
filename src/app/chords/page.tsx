@@ -17,12 +17,16 @@ export default function ChordsHome() {
     const [speed, setSpeeed] = useState(5);
     const [octave, setOctave] = useState(2);
 
-    const [correction, setCorrection] = useState(new Array(NUMBER_OF_NOTES));
+    const [correction, setCorrection] = useState(
+        new Array(NUMBER_OF_NOTES).fill(undefined)
+    );
     const [chordProgression, setChordProgression] = useState(
         new Array(NUMBER_OF_NOTES)
     );
 
-    const [pin, setPin] = useState(new Array(NUMBER_OF_NOTES + 1));
+    const [pin, setPin] = useState(
+        new Array(NUMBER_OF_NOTES + 1).fill(undefined)
+    );
     const [startTime, setStartTime] = useState(Date.now());
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
@@ -50,8 +54,8 @@ export default function ChordsHome() {
         const progression = generateRandomProgression(NUMBER_OF_NOTES);
 
         setChordProgression(progression);
-        setPin(new Array(NUMBER_OF_NOTES));
-        setCorrection(new Array(NUMBER_OF_NOTES));
+        setPin(new Array(NUMBER_OF_NOTES).fill(undefined));
+        setCorrection(new Array(NUMBER_OF_NOTES).fill(undefined));
         setStartTime(Date.now());
     };
 
@@ -145,6 +149,10 @@ export default function ChordsHome() {
                     />
                 </center>
                 <button
+                    disabled={
+                        correction.length === NUMBER_OF_NOTES &&
+                        correction.every((value) => value === 1)
+                    }
                     onClick={() => {
                         correctGuess(
                             chordProgression,
@@ -158,7 +166,7 @@ export default function ChordsHome() {
                             }
                         );
                     }}
-                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-xl text-white"
+                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-xl text-white disabled:opacity-70"
                 >
                     Verify
                 </button>

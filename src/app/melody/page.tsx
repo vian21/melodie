@@ -19,12 +19,14 @@ export default function MelodyRandom() {
     const [octave, setOctave] = useState(4);
     const key = useRef(0);
     const [speed, setSpeeed] = useState(5);
-    const [correction, setCorrection] = useState(new Array(numberOfNotes));
+    const [correction, setCorrection] = useState(
+        new Array(numberOfNotes).fill(undefined)
+    );
     const [melodyDegrees, setMelodyDegrees] = useState(
         new Array(numberOfNotes)
     );
 
-    const [pin, setPin] = useState(new Array(numberOfNotes));
+    const [pin, setPin] = useState(new Array(numberOfNotes).fill(undefined));
     const [startTime, setStartTime] = useState(Date.now());
     const onPinChanged = (pinEntry: number | undefined, index: number) => {
         const newPin = [...pin];
@@ -41,8 +43,8 @@ export default function MelodyRandom() {
         setMelodyDegrees(generateRandomMelody(numberOfNotes));
 
         // Clear correction
-        setPin(new Array(numberOfNotes));
-        setCorrection(new Array(numberOfNotes));
+        setPin(new Array(numberOfNotes).fill(undefined));
+        setCorrection(new Array(numberOfNotes).fill(undefined));
 
         setStartTime(Date.now());
     }, [numberOfNotes]);
@@ -169,6 +171,10 @@ export default function MelodyRandom() {
                 </center>
 
                 <button
+                    disabled={
+                        correction.length === numberOfNotes &&
+                        correction.every((value) => value === 1)
+                    }
                     onClick={() => {
                         correctGuess(
                             melodyDegrees,
@@ -182,7 +188,7 @@ export default function MelodyRandom() {
                             }
                         );
                     }}
-                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white"
+                    className="m-auto mb-4 mt-5 w-4/5 bg-green-300 p-3 text-white disabled:opacity-70"
                 >
                     Verify
                 </button>
