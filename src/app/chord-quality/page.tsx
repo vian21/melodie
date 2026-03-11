@@ -2,7 +2,7 @@
 
 import { Sampler, now } from "tone";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import usePiano from "~/util/Piano";
 import { db } from "~/util/db";
 
@@ -18,6 +18,8 @@ import {
 
 type GuessStateMap = Partial<Record<ChordQuality, 0 | 1>>;
 
+const REPEAT_PROBABILITY = 0.1;
+
 /**
  * Apply a guess to the previous guess-state map.
  */
@@ -30,6 +32,25 @@ function updateGuessState(
     correct: boolean
 ): GuessStateMap {
     return { ...prev, [guess]: correct ? 1 : 0 };
+}
+
+function pickQuality(
+    pool: ChordQuality[],
+    lastQuality: ChordQuality | null
+): ChordQuality {
+    if (lastQuality == null) {
+        return pool[Math.floor(Math.random() * pool.length)]!;
+    }
+
+    if (Math.random() < REPEAT_PROBABILITY) {
+        return lastQuality;
+    }
+
+    let nextQuality = lastQuality;
+    while (nextQuality === lastQuality) {
+        nextQuality = pool[Math.floor(Math.random() * pool.length)]!;
+    }
+    return nextQuality;
 }
 
 export default function ChordQualityTrainer() {
@@ -55,6 +76,7 @@ export default function ChordQualityTrainer() {
     const [startTime, setStartTime] = useState(Date.now());
 
     const pool = useMemo(() => getChordQualitiesForLevel(level), [level]);
+    const lastQualityRef = useRef<ChordQuality | null>(null);
 
     const resetRound = useCallback(
         /**
@@ -66,18 +88,19 @@ export default function ChordQualityTrainer() {
             setResolved(false);
             setStates({});
             setStartTime(Date.now());
+            lastQualityRef.current = quality;
         },
         []
     );
 
     const nextChord = useCallback(() => {
-        const quality = pool[Math.floor(Math.random() * pool.length)]!;
+        const quality = pickQuality(pool, lastQualityRef.current);
         const nextRoot = keepSameRoot ? root : generateRandomKey();
         resetRound(nextRoot, quality);
     }, [keepSameRoot, pool, resetRound, root]);
 
     useEffect(() => {
-        const quality = pool[Math.floor(Math.random() * pool.length)]!;
+        const quality = pickQuality(pool, lastQualityRef.current);
         resetRound(generateRandomKey(), quality);
     }, [level, pool, resetRound]);
 
